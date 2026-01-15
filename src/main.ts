@@ -84,7 +84,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <img src="${pokemon.image}" alt="${pokemon.name}" />
         <h2>${pokemon.name}</h2>
         <p>Type: ${pokemon.type.join(', ')}</p>
+        <p>ID: ${pokemon.id}</p>
       </div>
+      
     `)
     .join('')}
 </div>
