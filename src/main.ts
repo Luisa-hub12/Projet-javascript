@@ -73,17 +73,17 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <input
   id="search"
   type="text"
-  placeholder="Rechercher un Pokémon par nom..."
+  placeholder="🔎 Rechercher un Pokémon par nom..."
 />
 
 <div class="pokemon-list">
   ${pokemons
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => a.name.localeCompare(b.name)) // sert a trier les pokemons par ordre alphabetique (non onligatoire)
     .map(pokemon => `
       <div class="pokemon-card">
         <img src="${pokemon.image}" alt="${pokemon.name}" />
         <h2>${pokemon.name}</h2>
-        <p>Type: ${pokemon.type.join(', ')}</p>
+        <p>Type: ${pokemon.type.join(', ')}</p> 
         <p>ID: ${pokemon.id}</p>
       </div>
       
@@ -201,7 +201,7 @@ function setupCardsClick() {
 ====================== */
 
 async function init() {
-  app.innerHTML = `<p>Chargement du Pokédex...</p>`
+  app.innerHTML = `<p>⚙️ Chargement du Pokédex...</p>`
   allPokemons = await fetchPokemons(151)
   filteredPokemons = allPokemons
   renderPokemonList(allPokemons)

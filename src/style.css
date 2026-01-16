@@ -30,8 +30,9 @@ body {
 ====================== */
 h1 {
   font-size: 3rem;
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   margin-bottom: 1.5rem;
-  color: #fff;
+  color: #e1d60f;
   text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
 }
 
@@ -62,7 +63,7 @@ h1 {
    POKEMON CARD
 ====================== */
 .pokemon-card {
-  background: white;
+  background: rgb(255, 255, 255);
   color: #333;
   border-radius: 16px;
   padding: 16px;
