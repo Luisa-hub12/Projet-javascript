@@ -4,19 +4,21 @@ Utiliser la base fourni dans le dossier my-first-pokedex-coda, ou créer votre p
 Les features
 
     Pokédex
-        Lister pokemon. ---> ✓ ---> à vérifier 
-            Recherche par texte sur le nom ---> ✓ ---> à vérifier
+        Lister pokemon. ✓ 
+            - Par ordre alphabétique ✓
+            Recherche par texte sur le nom ---> ✓ ---> à vérifier ---> pour le moment on peut mettre seulement la première lettre
             Recherche avancé
                 Par type ---> en cours ---> affiché sur la carte mais la barre de recherche ne marche pas
                     Par id ---> en cours ---> affiché sur la carte mais la barre de recherche ne marche pas
                     Par abilities ---> en cours---> pas affiché sur la carte mais la barre de recherche ne marche pas
                     Par génération
             Fiche de base
-                id -en cours
+                    id ✓
                     Nom ✓
-                    Stats ✓ initialisation du pokemon -> pas fait
-                    Cri ---> ✓ ---> à verifier
-                    Image ✓ + type (pas obligatoire)
+                    Stats ✓ 
+                    Cri ✓ 
+                    Image ✓
+                    Type ✓
             Navigation
                 Afficher évolution (avant et après) et naviguer au click
                     Passez au pokemon suivant / précedent depuis la fiche

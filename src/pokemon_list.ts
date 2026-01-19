@@ -14,7 +14,7 @@ export interface Pokemon {
     defense: number
     speed: number
   }
-  cries?: string
+  cries?: string // cri du pokemon (URL)
 }
 
 /* ======================
@@ -78,7 +78,7 @@ function renderPokemonList(pokemons: Pokemon[]) {
 
     <div class="pokemon-list">
       ${pokemons
-        .sort((a, b) => a.name.localeCompare(b.name))
+        .sort((a, b) => a.name.localeCompare(b.name)) // classer les pokémons par ordre alphabétique.
         .map(pokemon => `
           <div class="pokemon-card" data-id="${pokemon.id}">
             <img src="${pokemon.image}" />
