@@ -1,4 +1,8 @@
 import './style.css'
+import './main'
+import './pokemon_list'
+
+
 
 export function setupHomePage(onContinue: () => void) {
   const app = document.querySelector<HTMLDivElement>('#app')!
@@ -6,35 +10,23 @@ export function setupHomePage(onContinue: () => void) {
   app.innerHTML = `
     <div class="layout">
       <header class="navbar">
-        <div class="logo">LOGO</div> 
-        <div class="header-right">
+        <div class="logo">
+        <img src="image.png" alt="Pokemon Logo"/> 
+        <br>
+        </div> 
+        <div class="header">
           <button class="lang-btn">LANGUE</button>
           <button id="menu-trigger">MENU</button>
         </div>
       </header>
 
       <main class="main-content">
+      <br>
         <h1 class="title-pokedex">POKÉDEX</h1>
-
-        <div class="form-container">
-          <h2>FORMULAIRE D'INSCRIPTION</h2>
-          <p>SE CRÉER UN COMPTE</p>
-          <div class="inputs">
-            <input type="text" placeholder="Pseudo">
-            <input type="password" placeholder="Mot de passe">
-          </div>
-        </div>
-
-        <button id="continue-btn" class="continue-btn">CONTINUER</button>
       </main>
-
       <aside id="side-menu" class="side-menu-hidden">
         <nav>
-          <ul>
-            <li><button id="nav-list">LIST</button></li>
-            <li><button id="nav-compte">COMPTE</button></li>
-            <li><button id="nav-logout">SE DÉCONNECTER</button></li>
-          </ul>
+            <button id="nav-list">LISTE</button>
         </nav>
       </aside>
     </div>
@@ -43,7 +35,7 @@ export function setupHomePage(onContinue: () => void) {
   setupMenuLogic()
 
   document
-    .querySelector('#continue-btn')!
+    .querySelector('#nav-list')!
     .addEventListener('click', onContinue)
 }
 
