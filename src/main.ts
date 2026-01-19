@@ -6,3 +6,5 @@ import { initPokemonList } from './pokemon_list'
 setupHomePage(() => {
   initPokemonList()
 })
+
+

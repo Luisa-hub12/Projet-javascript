@@ -2,6 +2,7 @@
   TYPES
 ====================== */
 
+
 export interface Pokemon {
   id: number
   name: string
@@ -14,6 +15,8 @@ export interface Pokemon {
     defense: number
     speed: number
   }
+  poids: number
+  taille: number
   cries?: string // cri du pokemon (URL)
 }
 
@@ -48,6 +51,8 @@ export async function fetchPokemons(limit = 151): Promise<Pokemon[]> {
         defense: data.stats[2].base_stat,
         speed: data.stats[5].base_stat,
       },
+      poids: data.weight / 10,  // kg
+      taille: data.height / 10, // m
       cries: data.cries?.latest,
     })
   }
@@ -60,7 +65,7 @@ export async function fetchPokemons(limit = 151): Promise<Pokemon[]> {
 ====================== */
 
 export async function initPokemonList() {
-  app.innerHTML = `<p>⚙️ Chargement du Pokédex...</p>`
+  app.innerHTML = `<p>⚙️ Loading the Pokédex...</p>`
   allPokemons = await fetchPokemons()
   filteredPokemons = allPokemons
   renderPokemonList(allPokemons)
@@ -73,10 +78,10 @@ function renderPokemonList(pokemons: Pokemon[]) {
     <input
       id="search"
       type="text"
-      placeholder="🔎 Rechercher un Pokémon..."
+      placeholder="🔎 Find a Pokémon..."
     />
 
-    <div class="pokemon-list">
+    <div id="pokemon-list" class="pokemon-list">
       ${pokemons
         .sort((a, b) => a.name.localeCompare(b.name)) // classer les pokémons par ordre alphabétique.
         .map(pokemon => `
@@ -87,7 +92,13 @@ function renderPokemonList(pokemons: Pokemon[]) {
         `)
         .join('')}
     </div>
+    <div id="pokemon-bottom"></div>
+    
+    <a href="#pokemon-list" class="back-to-top" aria-label="Revenir en haut">⬆</a>
+    <a href="#pokemon-bottom" class="go-bottom" aria-label="Aller en bas">⬇</a>
+    
   `
+  
 
   setupSearch()
   setupCardsClick()
@@ -115,8 +126,9 @@ function setupSearch() {
 
 function renderPokemonDetail(pokemon: Pokemon) {
   app.innerHTML = `
-    <button id="back">← Retour</button>
+    <button id="back">← Return</button>
 
+    <div class="pokemon-infos">
     <h2>${pokemon.name}</h2>
     <img src="${pokemon.image}" />
 
@@ -124,14 +136,18 @@ function renderPokemonDetail(pokemon: Pokemon) {
     <p><strong>Type :</strong> ${pokemon.type.join(', ')}</p>
     <p><strong>Abilities :</strong> ${pokemon.abilities.join(', ')}</p>
 
+  
     <ul>
       <li><strong>HP :</strong> ${pokemon.stats.hp}</li>
       <li><strong>Attack :</strong> ${pokemon.stats.attack}</li>
       <li><strong>Defense :</strong> ${pokemon.stats.defense}</li>
       <li><strong>Speed :</strong> ${pokemon.stats.speed}</li>
+      <li><strong>Poid :</strong> ${pokemon.poids} kg</li>
+      <li><strong>Taille :</strong> ${pokemon.taille} m</li>
     </ul>
+    </div>
 
-    ${pokemon.cries ? `<button id="cry">🎙️ CRIER</button>` : ''}
+    ${pokemon.cries ? `<button id="cry">🎙️ CRY !</button>` : ''}
   `
 
   document.querySelector('#back')!.addEventListener('click', () => {
@@ -158,3 +174,4 @@ function setupCardsClick() {
     })
   })
 }
+

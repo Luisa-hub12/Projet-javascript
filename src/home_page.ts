@@ -1,6 +1,7 @@
 import './style.css'
 import './main'
 import './pokemon_list'
+import './counter'
 
 
 
@@ -15,7 +16,7 @@ export function setupHomePage(onContinue: () => void) {
         <br>
         </div> 
         <div class="header">
-          <button class="lang-btn">LANGUE</button>
+          <button class="lang-btn">FR</button>
           <button id="menu-trigger">MENU</button>
         </div>
       </header>
@@ -27,6 +28,7 @@ export function setupHomePage(onContinue: () => void) {
       <aside id="side-menu" class="side-menu-hidden">
         <nav>
             <button id="nav-list">LISTE</button>
+            <button id="counter">COMPTER</button>
         </nav>
       </aside>
     </div>
