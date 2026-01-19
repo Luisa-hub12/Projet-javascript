@@ -143,19 +143,10 @@ ul li {
 /* ======================
    LOGOS / FOOTER
 ====================== */
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  transition: filter 300ms;
-}
 
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
 
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
-}
+
+
 
 .read-the-docs {
   color: #fff;

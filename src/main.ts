@@ -1,7 +1,7 @@
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
 import { setupCounter } from './counter.ts'
+import './home_page.ts'
+import { setupHomePage } from './home_page.ts'
 
 
 // Définition du type Pokemon
@@ -65,9 +65,7 @@ export async function fetchPokemons(limit = 151): Promise<Pokemon[]> {
 ====================== */
 
 function renderPokemonList(pokemons: Pokemon[]) {
-  app.innerHTML = 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-
+  app.innerHTML = `
 <h1>POKÉDEX</h1>
 
 <input
@@ -83,34 +81,18 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <div class="pokemon-card">
         <img src="${pokemon.image}" alt="${pokemon.name}" />
         <h2>${pokemon.name}</h2>
-        <p>Type: ${pokemon.type.join(', ')}</p> 
-        <p>ID: ${pokemon.id}</p>
       </div>
       
     `)
     .join('')}
 </div>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
+ 
+
 `
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!);
-
-
- }
+  setupSearch()
+  setupCardsClick()
+}
 
 
 /* ======================
@@ -127,7 +109,6 @@ function setupSearch() {
       pokemon.name.toLowerCase().includes(query)
     )
     renderPokemonList(filteredPokemons)
-    setupSearch()
   })
 }
 
@@ -165,18 +146,14 @@ function renderPokemonDetail(pokemon: Pokemon) {
 
   document.querySelector('#back')!.addEventListener('click', () => {
     renderPokemonList(allPokemons)
-    setupSearch()
-    setupCardsClick()
   })
 
   if (pokemon.cries) {
     document.querySelector('#cry')!.addEventListener('click', () => {
-      const audio = new Audio(pokemon.cries!)
-      audio.play()
+      new Audio(pokemon.cries!).play()
     })
   }
 }
-
 
 
 /* ======================
@@ -202,12 +179,12 @@ function setupCardsClick() {
 
 async function init() {
   app.innerHTML = `<p>⚙️ Chargement du Pokédex...</p>`
-  allPokemons = await fetchPokemons(151)
+  allPokemons = await fetchPokemons()
   filteredPokemons = allPokemons
   renderPokemonList(allPokemons)
-  setupSearch()
-  setupCardsClick()
 }
 
-init()
+setupHomePage(() => {
+  init()
+})
 
