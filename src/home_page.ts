@@ -28,7 +28,7 @@ export function setupHomePage(onContinue: () => void) {
       <aside id="side-menu" class="side-menu-hidden">
         <nav>
             <button id="nav-list">LISTE</button>
-            <button id="counter">COMPTER</button>
+            <button id="counter">COMPTE</button>
         </nav>
       </aside>
     </div>

@@ -6,7 +6,7 @@ Les features
     Pokédex
         Lister pokemon. ✓ 
             - Par ordre alphabétique ✓
-            Recherche par texte sur le nom ---> ✓ ---> à vérifier ---> pour le moment on peut mettre seulement la première lettre
+            Recherche par texte sur le nom ✓
             Recherche avancé
                 Par type ---> en cours ---> affiché sur la carte mais la barre de recherche ne marche pas
                     Par id ---> en cours ---> affiché sur la carte mais la barre de recherche ne marche pas
@@ -21,7 +21,7 @@ Les features
                     Type ✓
             Navigation
                 Afficher évolution (avant et après) et naviguer au click
-                    Passez au pokemon suivant / précedent depuis la fiche
+                    Passez au pokemon suivant / précedent depuis la fiche ✓
     Créateur d’équipe
         En tant que joueur
        

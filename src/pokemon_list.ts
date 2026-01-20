@@ -1,7 +1,10 @@
+import { fetchPokemons } from './API/API'
+
+
+
 /* ======================
   TYPES
 ====================== */
-
 
 export interface Pokemon {
   id: number
@@ -17,7 +20,7 @@ export interface Pokemon {
   }
   poids: number
   taille: number
-  cries?: string // cri du pokemon (URL)
+  cries?: string
 }
 
 /* ======================
@@ -27,48 +30,19 @@ export interface Pokemon {
 const app = document.querySelector<HTMLDivElement>('#app')!
 let allPokemons: Pokemon[] = []
 let filteredPokemons: Pokemon[] = []
+let currentPokemonIndex: number | null = null; 
 
-/* ======================
-  API
-====================== */
-
-export async function fetchPokemons(limit = 151): Promise<Pokemon[]> {
-  const pokemons: Pokemon[] = []
-
-  for (let i = 1; i <= limit; i++) {
-    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`)
-    const data = await response.json()
-
-    pokemons.push({
-      id: data.id,
-      name: data.name,
-      image: data.sprites.front_default,
-      type: data.types.map((typeInfo: any) => typeInfo.type.name),
-      abilities: data.abilities.map((abilityInfo: any) => abilityInfo.ability.name),
-      stats: {
-        hp: data.stats[0].base_stat,
-        attack: data.stats[1].base_stat,
-        defense: data.stats[2].base_stat,
-        speed: data.stats[5].base_stat,
-      },
-      poids: data.weight / 10,  // kg
-      taille: data.height / 10, // m
-      cries: data.cries?.latest,
-    })
-  }
-
-  return pokemons
-}
 
 /* ======================
   LISTE
 ====================== */
 
 export async function initPokemonList() {
-  app.innerHTML = `<p>⚙️ Loading the Pokédex...</p>`
+  app.innerHTML = `<p style="color:#333; font-size:1.5rem; text-align:center; margin-top:50px;">⚙️ Chargement du Pokédex...</p>`
   allPokemons = await fetchPokemons()
   filteredPokemons = allPokemons
   renderPokemonList(allPokemons)
+  setupGlobalKeyboardEvents(); // On lance l'écoute du clavier ici
 }
 
 function renderPokemonList(pokemons: Pokemon[]) 
@@ -78,10 +52,9 @@ function renderPokemonList(pokemons: Pokemon[])
   if (listContainer) 
     {
     listContainer.innerHTML = pokemons
-      .sort((a, b) => a.name.localeCompare(b.name))
       .map(pokemon => `
         <div class="pokemon-card" data-id="${pokemon.id}">
-          <img src="${pokemon.image}" />
+          <img src="${pokemon.image}" loading="lazy" />
           <h2>${pokemon.name}</h2>
         </div>
       `).join('');
@@ -91,37 +64,31 @@ function renderPokemonList(pokemons: Pokemon[])
   }
 
   app.innerHTML = `
-    <h1>POKÉDEX</h1>
-    <input id="search" type="text" placeholder="🔎 Find a Pokémon..." />
+    <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
 
     <div id="pokemon-list" class="pokemon-list">
       ${pokemons
-        .sort((a, b) => a.name.localeCompare(b.name))
         .map(p => `
           <div class="pokemon-card" data-id="${p.id}">
-            <img src="${p.image}" />
+            <img src="${p.image}" loading="lazy" />
             <h2>${p.name}</h2>
           </div>
         `).join('')}
     </div>
+    
+    <div id="modal-container"></div>
     <div id="pokemon-bottom"></div>
-    <a href="#pokemon-list" class="back-to-top">⬆</a>
-    <a href="#pokemon-bottom" class="go-bottom">⬇</a>
   `;
 
   setupSearch();
   setupCardsClick();
 }
-  
-
-  setupSearch()
-  setupCardsClick()
 
 
 /* ======================
   SEARCH
 ====================== */
-
+  
 function setupSearch() 
 {
   const input = document.querySelector<HTMLInputElement>('#search');
@@ -139,57 +106,137 @@ function setupSearch()
 }
 
 /* ======================
-  DETAIL
+  DETAIL (MODALE)
 ====================== */
 
-function renderPokemonDetail(pokemon: Pokemon) {
-  app.innerHTML = `
-    <button id="back">← Return</button>
+function openModal(index: number) {
+  if (index < 0 || index >= filteredPokemons.length) return;
 
-    <div class="pokemon-infos">
-    <h2>${pokemon.name}</h2>
-    <img src="${pokemon.image}" />
-
-    <p><strong>ID :</strong> ${pokemon.id}</p>
-    <p><strong>Type :</strong> ${pokemon.type.join(', ')}</p>
-    <p><strong>Abilities :</strong> ${pokemon.abilities.join(', ')}</p>
-
+  currentPokemonIndex = index; // On sauvegarde où on est
+  const pokemon = filteredPokemons[index];
+  const mainType = pokemon.type[0];
   
-    <ul>
-      <li><strong>HP :</strong> ${pokemon.stats.hp}</li>
-      <li><strong>Attack :</strong> ${pokemon.stats.attack}</li>
-      <li><strong>Defense :</strong> ${pokemon.stats.defense}</li>
-      <li><strong>Speed :</strong> ${pokemon.stats.speed}</li>
-      <li><strong>Poid :</strong> ${pokemon.poids} kg</li>
-      <li><strong>Taille :</strong> ${pokemon.taille} m</li>
-    </ul>
-    </div>
+  const modalContainer = document.querySelector('#modal-container')!;
 
-    ${pokemon.cries ? `<button id="cry">🎙️ CRY !</button>` : ''}
+  modalContainer.innerHTML = `
+    <div class="modal-overlay" id="overlay-bg">
+      
+      ${index > 0 ? `<button class="nav-arrow nav-prev">❮</button>` : ''}
+
+      <div class="modal-content type-${mainType}">
+        <button class="modal-close">✖</button>
+
+        <div class="modal-header">
+           <img src="${pokemon.image}" />
+        </div>
+        
+        <h2>${pokemon.name}</h2>
+
+        <div class="types">
+          ${pokemon.type
+            .map(type => `<span class="type-badge type-${type}">${type}</span>`)
+            .join('')}
+        </div>
+
+        <div style="display:flex; justify-content:center; gap:20px; margin: 15px 0;">
+            <p><strong>Poids:</strong> ${pokemon.poids} kg</p>
+            <p><strong>Taille:</strong> ${pokemon.taille} m</p>
+        </div>
+
+        <ul class="stats" style="list-style:none; padding:0; text-align:left;">
+          ${renderStat('HP', pokemon.stats.hp)}
+          ${renderStat('ATK', pokemon.stats.attack)}
+          ${renderStat('DEF', pokemon.stats.defense)}
+          ${renderStat('VIT', pokemon.stats.speed)}
+        </ul>
+
+        ${pokemon.cries ? `<button id="cry-btn">🔊 Cri du Pokémon</button>` : ''}
+      </div>
+
+      ${index < filteredPokemons.length - 1 ? `<button class="nav-arrow nav-next">❯</button>` : ''}
+
+    </div>
   `
 
-  document.querySelector('#back')!.addEventListener('click', () => {
-    renderPokemonList(allPokemons)
-  })
+  // Fonction pour tout fermer proprement
+  const closeModal = () => {
+    modalContainer.innerHTML = '';
+    currentPokemonIndex = null; // Important : on reset l'index quand on ferme
+  };
+
+  document.querySelector('.modal-close')?.addEventListener('click', closeModal);
+  
+  document.querySelector('#overlay-bg')?.addEventListener('click', (e) => {
+    if (e.target === document.querySelector('#overlay-bg')) closeModal();
+  });
+
+  document.querySelector('.nav-prev')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openModal(index - 1);
+  });
+
+  document.querySelector('.nav-next')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openModal(index + 1);
+  });
 
   if (pokemon.cries) {
-    document.querySelector('#cry')!.addEventListener('click', () => {
-      new Audio(pokemon.cries!).play()
+    document.querySelector('#cry-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      new Audio(pokemon.cries!).play();
     })
   }
 }
 
+function renderStat(label: string, value: number) {
+  const percent = Math.min(value, 100);
+  return `
+    <div class="stat-row">
+      <strong>${label}</strong>
+      <div class="bar-bg">
+        <div class="bar-fill" style="width:${percent}%"></div>
+      </div>
+      <span>${value}</span>
+    </div>
+  `
+}
+
 /* ======================
-  EVENTS
+  EVENTS (CLIC & CLAVIER)
 ====================== */
 
 function setupCardsClick() {
   document.querySelectorAll('.pokemon-card').forEach(card => {
     card.addEventListener('click', () => {
       const id = Number(card.getAttribute('data-id'))
-      const pokemon = allPokemons.find(pokemon => pokemon.id === id)
-      if (pokemon) renderPokemonDetail(pokemon)
+      const index = filteredPokemons.findIndex(p => p.id === id);
+      if (index !== -1) openModal(index);
     })
   })
 }
 
+// NOUVEAU : Gestion des touches du clavier
+function setupGlobalKeyboardEvents() {
+  window.addEventListener('keydown', (e) => {
+    // Si aucune modale n'est ouverte (index est null), on ne fait rien
+    if (currentPokemonIndex === null) return;
+
+    if (e.key === 'ArrowLeft') {
+      // Flèche Gauche
+      if (currentPokemonIndex > 0) {
+        openModal(currentPokemonIndex - 1);
+      }
+    } 
+    else if (e.key === 'ArrowRight') {
+      // Flèche Droite
+      if (currentPokemonIndex < filteredPokemons.length - 1) {
+        openModal(currentPokemonIndex + 1);
+      }
+    }
+    else if (e.key === 'Escape') {
+      // Touche Echap pour fermer
+      document.querySelector('#modal-container')!.innerHTML = '';
+      currentPokemonIndex = null;
+    }
+  });
+}

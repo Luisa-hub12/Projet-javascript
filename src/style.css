@@ -1,6 +1,14 @@
-/* ======================
-   RESET / GLOBAL
-====================== */
+/* =========================================
+   1. VARIABLES & RESET
+========================================= */
+:root {
+  --pokedex-red: #dc0a2d; /* Rouge officiel */
+  --pokedex-dark: #8b0000;
+  --bg-color: #2c504f; /* Nouveau fond : Gris bleuté doux et moderne */
+  --text-main: #2c3e50;
+  --text-white: #ffffff;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,77 +16,134 @@
 }
 
 body {
-  min-width: 320px;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
   min-height: 100vh;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  background: linear-gradient(135deg, #303fe7, #ef6157);
-  color: #3a1010;
 }
 
-/* ======================
-   APP CONTAINER
-====================== */
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* =========================================
+   2. NAVBAR & HEADER (ACCUEIL)
+========================================= */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: var(--pokedex-red);
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 90px; /* Un peu plus fin */
+}
+
+/* LOGO AJUSTÉ (Un peu plus petit) */
+.logo img {
+  height: 110px; /* Réduit de 140px à 110px */
+  width: auto;
+  margin-top: 25px; /* Ajusté pour qu'il dépasse juste ce qu'il faut */
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
+  transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+  transform: scale(1.05) rotate(-5deg);
+}
+
+.header {
+  display: flex;
+  gap: 15px;
+}
+
+/* Boutons Header */
+.lang-btn, #menu-trigger {
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.lang-btn:hover, #menu-trigger:hover {
+  background: white;
+  color: var(--pokedex-red);
+}
+
+/* =========================================
+   3. TITRE & RECHERCHE
+========================================= */
+
+.title-pokedex {
+  font-size: 3.5rem;
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #ffcb05; /* Jaune Pokémon */
+  text-shadow: 
+    3px 3px 0 #3b5aca, /* Ombre Bleue */
+    -1px -1px 0 #000,  
+    1px -1px 0 #000;
+  margin: 2rem 0;
   text-align: center;
 }
 
-/* ======================
-   HEADER / TITRE
-====================== */
-h1 {
-  font-size: 3rem;
-  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-  margin-bottom: 1.5rem;
-  color: #e1d60f;
-  text-shadow: 1px 1px 4px rgba(1,1,1,1);
-}
-
-/* ======================
-   SEARCH INPUT
-====================== */
+/* BARRE DE RECHERCHE CENTRÉE */
 #search {
-  padding: 12px 16px;
-  width: 100%;
-  max-width: 400px;
-  border-radius: 12px;
-  border: none;
-  margin-bottom: 2rem;
-  font-size: 1rem;
-  box-shadow: #333(1,1,1,1);
+  display: block; 
+  margin: 10px auto 50px auto; 
+  width: 90%;
+  max-width: 500px;
+  padding: 20px 25px;
+  border-radius: 50px;
+  border: 2px solid #ddd; /* Bordure plus douce */
+  background: white;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: all 0.3s;
+  outline: none;
 }
 
-/* ======================
-   POKEMON LIST (GRID)
-====================== */
+#search:focus {
+  border-color: #3b4cca;
+  box-shadow: 0 4px 15px rgba(59, 76, 202, 0.2);
+}
+
+/* =========================================
+   4. LISTE & CARTES
+========================================= */
+
 .pokemon-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 55px;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* ======================
-   POKEMON CARD
-====================== */
 .pokemon-card {
-  background: rgb(224, 189, 189);
-  color: #333;
-  border-radius: 16px;
-  padding: 16px;
-  width: 90%;
-  max-width: 200px;
-  box-shadow: 0 8px 20px rgba(1, 1, 1, 1);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
   text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Ombre plus douce */
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  border-bottom: 5px solid transparent;
 }
 
 .pokemon-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  border-bottom-color: var(--pokedex-red);
 }
 
 .pokemon-card img {
@@ -89,123 +154,249 @@ h1 {
 }
 
 .pokemon-card h2 {
-  margin: 8px 0;
-  font-size: 1.2rem;
   text-transform: capitalize;
+  font-size: 1.2rem;
+  color: #333;
 }
 
-.pokemon-card p {
-  margin: 4px 0;
+/* =========================================
+   5. MENU LATÉRAL (Side Menu)
+========================================= */
+
+#side-menu {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+  padding: 100px 20px 20px;
+  transition: right 0.3s ease-in-out;
+  z-index: 99;
+}
+
+.side-menu-visible {
+  right: 0 !important;
+}
+
+#side-menu nav button {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 15px;
+  text-align: left;
+  background: #f8f8f8;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+#side-menu nav button:hover {
+  background: var(--pokedex-red);
+  color: white;
+}
+
+/* =========================================
+   6. MODALE (Overlay & Carte Détail)
+========================================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 25px;
+  padding: 30px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-header img {
+  width: 180px;
+  height: 180px;
+  margin-top: -80px;
+  filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+}
+
+.modal-content h2 {
+  font-size: 2.5rem;
+  text-transform: capitalize;
+  margin: 10px 0;
+  color: #333;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #eee;
+  border: none;
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: #ff4d4d; color: white; }
+
+/* Flèches de navigation */
+.nav-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 2010;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.nav-arrow:hover { transform: translateY(-50%) scale(1.1); background: #ffcb05; }
+.nav-prev { left: 20px; }
+.nav-next { right: 20px; }
+
+/* =========================================
+   7. COULEURS DES TYPES (BADGES)
+========================================= */
+
+.types {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.type-badge {
+  padding: 6px 18px;
+  border-radius: 20px;
+  color: white !important;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+
+/* Couleurs types */
+.type-normal   { background-color: #A8A77A; }
+.type-fire     { background-color: #EE8130; }
+.type-water    { background-color: #6390F0; }
+.type-electric { background-color: #F7D02C; }
+.type-grass    { background-color: #7AC74C; }
+.type-ice      { background-color: #96D9D6; }
+.type-fighting { background-color: #C22E28; }
+.type-poison   { background-color: #A33EA1; }
+.type-ground   { background-color: #E2BF65; }
+.type-flying   { background-color: #A98FF3; }
+.type-psychic  { background-color: #F95587; }
+.type-bug      { background-color: #A6B91A; }
+.type-rock     { background-color: #B6A136; }
+.type-ghost    { background-color: #735797; }
+.type-dragon   { background-color: #6F35FC; }
+.type-dark     { background-color: #705746; }
+.type-steel    { background-color: #B7B7CE; }
+.type-fairy    { background-color: #D685AD; }
+
+/* =========================================
+   8. STATS & BOUTONS
+========================================= */
+
+.stats {
+  margin-top: 15px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
   font-size: 0.9rem;
 }
 
-/* ======================
-   BUTTONS
-====================== */
-button {
-  border-radius: 12px;
+.stat-row strong {
+  width: 60px;
+  text-align: left;
+  color: #555;
+}
+
+.bar-bg {
+  flex: 1;
+  height: 10px;
+  background: #f0f0f0;
+  border-radius: 10px;
+  margin: 0 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6390F0, #7AC74C);
+  border-radius: 10px;
+}
+
+.stat-row span {
+  width: 30px;
+  text-align: right;
+  font-weight: bold;
+}
+
+#cry-btn {
+  margin-top: 20px;
+  background: #b01f1f;
+  color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 10px 30px;
+  border-radius: 30px;
   font-size: 1rem;
-  background: #646cff;
-  color: rgb(211, 233, 10);
   cursor: pointer;
-  transition: background 0.2s ease;
-  margin-top: 8px;
-  box-shadow: 0 8px 20px rgba(1, 1, 1, 1);
+  transition: background 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+#cry-btn:hover { background: #000; transform: scale(1.05); }
+
+/* =========================================
+   9. RESPONSIVE
+========================================= */
+@media (max-width: 768px) {
+  .logo img { height: 90px; margin-top: 20px; } /* Encore plus petit sur mobile */
+  .navbar { padding: 10px; height: auto; }
+  .nav-arrow { width: 40px; height: 40px; font-size: 1.2rem; }
+  .nav-prev { left: 10px; }
+  .nav-next { right: 10px; }
+  .pokemon-list { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+  .pokemon-card { padding: 10px; }
 }
 
-
-button:hover {
-  background: #535bf2;
+@media (max-width: 480px) {
+  .pokemon-list { grid-template-columns: 1fr; }
+  .title-pokedex { font-size: 2.5rem; }
+  #side-menu { width: 80%; }
 }
 
-/* ======================
-   DETAIL POKEMON
-====================== */
-#back {
-  margin-bottom: 16px;
-}
-
-#app img {
-  max-width: 350px;
-  height: auto;
-  margin-bottom: 12px;
-}
-
-ul {
-  list-style: none;
-  padding-left: 0;
-  margin-top: 8px;
-}
-
-ul li {
-  margin-bottom: 4px;
-}
-
-/* ======================
-   LOGOS / FOOTER
-====================== */
-
-
-
-
-
-.read-the-docs {
-  color: #fff;
-  margin-top: 1rem;
-}
-
-/* ======================
-   RESPONSIVE
-====================== */
-@media (max-width: 600px) {
-  .pokemon-card {
-    max-width: 140px;
-    padding: 12px;
-  }
-
-  .pokemon-card img {
-    width: 100px;
-    height: 100px;
-  }
-
-  #search {
-    max-width: 100%;
-  }
-}
-
-
-.back-to-top {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  font-size: 24px;
-  background: #690360;
-  color: rgb(224, 189, 189);
-  border-radius: 50%;
-  padding: 10px 14px;
-  text-decoration: none;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.back-to-top:hover {
-  transform: scale(1.1);
-}
-
-.go-bottom {
-  position: fixed;
-  bottom: 80px;
-  right: 20px;
-  font-size: 24px;
-  background: #690360;
-  color: rgb(224, 189, 189);
-  border-radius: 50%;
-  padding: 10px 14px;
-  text-decoration: none;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-}
-
-.go-bottom:hover {
-  transform: scale(1.1);
-}
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
