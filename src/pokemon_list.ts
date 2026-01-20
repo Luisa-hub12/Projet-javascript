@@ -71,53 +71,71 @@ export async function initPokemonList() {
   renderPokemonList(allPokemons)
 }
 
-function renderPokemonList(pokemons: Pokemon[]) {
+function renderPokemonList(pokemons: Pokemon[]) 
+{
+  const listContainer = document.querySelector('#pokemon-list');
+
+  if (listContainer) 
+    {
+    listContainer.innerHTML = pokemons
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(pokemon => `
+        <div class="pokemon-card" data-id="${pokemon.id}">
+          <img src="${pokemon.image}" />
+          <h2>${pokemon.name}</h2>
+        </div>
+      `).join('');
+    
+    setupCardsClick(); 
+    return; 
+  }
+
   app.innerHTML = `
     <h1>POKÉDEX</h1>
-
-    <input
-      id="search"
-      type="text"
-      placeholder="🔎 Find a Pokémon..."
-    />
+    <input id="search" type="text" placeholder="🔎 Find a Pokémon..." />
 
     <div id="pokemon-list" class="pokemon-list">
       ${pokemons
-        .sort((a, b) => a.name.localeCompare(b.name)) // classer les pokémons par ordre alphabétique.
-        .map(pokemon => `
-          <div class="pokemon-card" data-id="${pokemon.id}">
-            <img src="${pokemon.image}" />
-            <h2>${pokemon.name}</h2>
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(p => `
+          <div class="pokemon-card" data-id="${p.id}">
+            <img src="${p.image}" />
+            <h2>${p.name}</h2>
           </div>
-        `)
-        .join('')}
+        `).join('')}
     </div>
     <div id="pokemon-bottom"></div>
-    
-    <a href="#pokemon-list" class="back-to-top" aria-label="Revenir en haut">⬆</a>
-    <a href="#pokemon-bottom" class="go-bottom" aria-label="Aller en bas">⬇</a>
-    
-  `
+    <a href="#pokemon-list" class="back-to-top">⬆</a>
+    <a href="#pokemon-bottom" class="go-bottom">⬇</a>
+  `;
+
+  setupSearch();
+  setupCardsClick();
+}
   
 
   setupSearch()
   setupCardsClick()
-}
+
 
 /* ======================
   SEARCH
 ====================== */
 
-function setupSearch() {
-  const input = document.querySelector<HTMLInputElement>('#search')!
+function setupSearch() 
+{
+  const input = document.querySelector<HTMLInputElement>('#search');
+  if (!input) return;
 
   input.addEventListener('input', () => {
-    const query = input.value.toLowerCase()
+    const query = input.value.toLowerCase();
+    
     filteredPokemons = allPokemons.filter(pokemon =>
       pokemon.name.toLowerCase().includes(query)
-    )
-    renderPokemonList(filteredPokemons)
-  })
+    );
+    
+    renderPokemonList(filteredPokemons);
+  });
 }
 
 /* ======================
