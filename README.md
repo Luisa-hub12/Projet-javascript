@@ -7,11 +7,16 @@ Les features
         Lister pokemon. ✓ 
             - Par ordre alphabétique ✓
             Recherche par texte sur le nom ✓
-            Recherche avancé
-                Par type ---> en cours ---> affiché sur la carte mais la barre de recherche ne marche pas
+           
+            Recherche avancé  (On rajoute u bar de filtre pour la recherche avencée)
+                Par type ---> en cours ---> 
+
                     Par id ---> en cours ---> affiché sur la carte mais la barre de recherche ne marche pas
+
                     Par abilities ---> en cours---> pas affiché sur la carte mais la barre de recherche ne marche pas
+
                     Par génération
+
             Fiche de base
                     id ✓
                     Nom ✓
