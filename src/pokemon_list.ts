@@ -64,8 +64,37 @@ function renderPokemonList(pokemons: Pokemon[])
   }
 
   app.innerHTML = `
+  <div class="header-controls">
     <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
+    <button id="advanced-filter" class="filter-button"> FILTRE </button>
+  </div>
+  <br>
 
+  <div id="fiter-bar" class="fiter-bar">
+  <div class="filter-group">
+    <label>Type</label>
+    <select id="filter-type">
+      <option value="">Tous</option>
+      <option value"fire">Fire</option>
+      <option value="garss">Grass</option>
+      <option value="poison">Poison</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label>Capacité</label>
+    <input id="filter-ability" type="text" placeholder="Écrivez ici!"
+  </div>
+
+  <div class="filter-group">
+    <label>Trier par ID</label>
+    <select id="filter-sort">
+     <!--<option value="asc">Croissant (1-151)</option> -->
+     <!--<option value="desc">Décroissant (151-1)</option> -->
+    </select>
+  </div>
+
+ 
     <div id="pokemon-list" class="pokemon-list">
       ${pokemons
         .map(p => `
@@ -79,7 +108,8 @@ function renderPokemonList(pokemons: Pokemon[])
     <div id="modal-container"></div>
     <div id="pokemon-bottom"></div>
   `;
-
+  
+  //setupAdvancedSearch();
   setupSearch();
   setupCardsClick();
 }
