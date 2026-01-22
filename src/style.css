@@ -102,7 +102,7 @@ body {
   max-width: 500px;
   padding: 20px 25px;
   border-radius: 50px;
-  border: 2px solid #ddd; /* Bordure plus douce */
+  border: 2px solid #ddd;
   background: white;
   font-size: 1.1rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -133,7 +133,7 @@ body {
   border-radius: 20px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Ombre plus douce */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
   position: relative;
