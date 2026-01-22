@@ -21,6 +21,8 @@ export interface Pokemon {
   poids: number
   taille: number
   cries?: string
+  evolutionFrom?: number
+  evolutionTo?: number[]
 }
 
 /* ======================
@@ -76,14 +78,14 @@ function renderPokemonList(pokemons: Pokemon[])
     <select id="filter-type">
       <option value="">Tous</option>
       <option value"fire">Fire</option>
-      <option value="garss">Grass</option>
+      <option value="grass">Grass</option>
       <option value="poison">Poison</option>
     </select>
   </div>
 
   <div class="filter-group">
     <label>Capacité</label>
-    <input id="filter-ability" type="text" placeholder="Écrivez ici!"
+    <input id="filter-ability" type="text" placeholder="Écrivez ici!"/>
   </div>
 
   <div class="filter-group">
@@ -142,10 +144,17 @@ function setupSearch()
 function openModal(index: number) {
   if (index < 0 || index >= filteredPokemons.length) return;
 
-  currentPokemonIndex = index; // On sauvegarde où on est
+  currentPokemonIndex = index;
   const pokemon = filteredPokemons[index];
-  const mainType = pokemon.type[0];
-  
+
+  const previousEvolution = pokemon.evolutionFrom
+  ? allPokemons.find(p => p.id === pokemon.evolutionFrom)
+  : null;
+
+  const nextEvolutions = pokemon.evolutionTo
+  ? pokemon.evolutionTo.map(id => allPokemons.find(p => p.id === id)).filter(Boolean)
+  : [];
+
   const modalContainer = document.querySelector('#modal-container')!;
 
   modalContainer.innerHTML = `
@@ -153,7 +162,7 @@ function openModal(index: number) {
       
       ${index > 0 ? `<button class="nav-arrow nav-prev">❮</button>` : ''}
 
-      <div class="modal-content type-${mainType}">
+      <div class="modal-content type-${pokemon.type[0]}">
         <button class="modal-close">✖</button>
 
         <div class="modal-header">
@@ -181,25 +190,74 @@ function openModal(index: number) {
         </ul>
 
         ${pokemon.cries ? `<button id="cry-btn">🔊 Cri du Pokémon</button>` : ''}
+      
+      <div class="evolutions">
+        ${previousEvolution ? `
+          <div class="evolution-card" data-id="${previousEvolution.id}">
+            <p style="color:#666; font-size:0.7rem;">AVANT</p>
+            <img src="${previousEvolution.image}" alt="${previousEvolution.name}" class="evolution-img"/>
+            <p>${previousEvolution.name}</p>
+          </div>` : ''}
+
+        ${nextEvolutions.map(p => `
+          <div class="evolution-card" data-id="${p!.id}">
+            <p style="color:#666; font-size:0.7rem;">APRÈS</p>
+            <img src="${p!.image}" alt="${p!.name}" class="evolution-img"/>
+            <p>${p!.name}</p>
+          </div>`).join('')}
       </div>
+
+    </div>
 
       ${index < filteredPokemons.length - 1 ? `<button class="nav-arrow nav-next">❯</button>` : ''}
 
     </div>
-  `
+  `;
 
-  // Fonction pour tout fermer proprement
+  // --- GESTION DES ÉVÉNEMENTS ---
+
   const closeModal = () => {
     modalContainer.innerHTML = '';
-    currentPokemonIndex = null; // Important : on reset l'index quand on ferme
+    currentPokemonIndex = null;
   };
 
+  // 1. Fermer la modale
   document.querySelector('.modal-close')?.addEventListener('click', closeModal);
-  
   document.querySelector('#overlay-bg')?.addEventListener('click', (e) => {
     if (e.target === document.querySelector('#overlay-bg')) closeModal();
   });
 
+  // 2. Navigation Évolution
+  const evoCards = document.querySelectorAll('.evolution-card');
+  
+  evoCards.forEach(card => {
+    card.addEventListener('click', () => {
+      // Maintenant que le HTML est corrigé, le getAttribute ne renverra plus null ou NaN
+      const idStr = card.getAttribute('data-id');
+      if (!idStr) return; // Sécurité
+
+      const id = Number(idStr);
+      
+      let newIndex = filteredPokemons.findIndex(p => p.id === id);
+
+      // Si le pokémon est masqué par le filtre
+      if (newIndex === -1) {
+        const searchInput = document.querySelector<HTMLInputElement>('#search');
+        if (searchInput) searchInput.value = '';
+
+        filteredPokemons = allPokemons;
+        renderPokemonList(filteredPokemons);
+
+        newIndex = filteredPokemons.findIndex(p => p.id === id);
+      }
+
+      if (newIndex !== -1) {
+        openModal(newIndex);
+      }
+    });
+  });
+
+  // 3. Flèches Nav
   document.querySelector('.nav-prev')?.addEventListener('click', (e) => {
     e.stopPropagation();
     openModal(index - 1);
@@ -210,6 +268,7 @@ function openModal(index: number) {
     openModal(index + 1);
   });
 
+  // 4. Cri
   if (pokemon.cries) {
     document.querySelector('#cry-btn')?.addEventListener('click', (e) => {
       e.stopPropagation();

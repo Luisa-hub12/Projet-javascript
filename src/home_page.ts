@@ -33,18 +33,11 @@ export function setupHomePage(onContinue: () => void) {
       </aside>
     </div>
   `
-
-  setupMenuLogic()
-
-  document
-    .querySelector('#nav-list')!
-    .addEventListener('click', onContinue)
-}
-
 /* ======================
   MENU
 ====================== */
-
+  setupMenuLogic()
+  
 function setupMenuLogic() {
   const menuBtn = document.querySelector('#menu-trigger')!
   const sideMenu = document.querySelector('#side-menu')!
@@ -58,3 +51,11 @@ function setupMenuLogic() {
     sideMenu.classList.remove('side-menu-visible')
   })
 }
+
+
+
+  document
+    .querySelector('#nav-list')!
+    .addEventListener('click', onContinue)
+}
+
