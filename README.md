@@ -25,7 +25,7 @@ Les features
                     Image ✓
                     Type ✓
             Navigation
-                Afficher évolution (avant et après) et naviguer au click
+                Afficher évolution (avant et après) et naviguer au click ✓
                     Passez au pokemon suivant / précedent depuis la fiche ✓
     Créateur d’équipe
         En tant que joueur

@@ -28,16 +28,14 @@ export async function fetchPokemons(limit = 400): Promise<Pokemon[]> {
   return pokemons
 }
 
-// Correction de la syntaxe ici (ajout du ' :' avant Promise)
+
 async function loadPokemonData(id: number): Promise<Pokemon> {
   const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
   const data = await response.json()
 
-  // CORRECTION ICI : on utilise 'data', pas 'DataTransfer'
   const speciesResponse = await fetch(data.species.url)
   const speciesData = await speciesResponse.json()
 
-  // Extraction de l'ID du parent depuis l'URL
   let evolutionFromId = undefined
   if (speciesData.evolves_from_species) {
     const urlParts = speciesData.evolves_from_species.url.split('/')

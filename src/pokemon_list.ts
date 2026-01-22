@@ -1,7 +1,5 @@
 import { fetchPokemons } from './API/API'
 
-
-
 /* ======================
   TYPES
 ====================== */
@@ -20,9 +18,9 @@ export interface Pokemon {
   }
   poids: number
   taille: number
-  cries?: string
+  cries?: string 
   evolutionFrom?: number
-  evolutionTo?: number[]
+  evolutionTo?: number[] // . ? veut dire que la propriété n'est pas obligatoire. Autrement dit, un pokemon peut posseder cette propriété mais il en a pas l'obligation.
 }
 
 /* ======================
@@ -44,7 +42,7 @@ export async function initPokemonList() {
   allPokemons = await fetchPokemons()
   filteredPokemons = allPokemons
   renderPokemonList(allPokemons)
-  setupGlobalKeyboardEvents(); // On lance l'écoute du clavier ici
+  setupGlobalKeyboardEvents(); 
 }
 
 function renderPokemonList(pokemons: Pokemon[]) 
@@ -99,10 +97,10 @@ function renderPokemonList(pokemons: Pokemon[])
  
     <div id="pokemon-list" class="pokemon-list">
       ${pokemons
-        .map(p => `
-          <div class="pokemon-card" data-id="${p.id}">
-            <img src="${p.image}" loading="lazy" />
-            <h2>${p.name}</h2>
+        .map(pokemon => `
+          <div class="pokemon-card" data-id="${pokemon.id}">
+            <img src="${pokemon.image}" loading="lazy" />
+            <h2>${pokemon.name}</h2>
           </div>
         `).join('')}
     </div>
@@ -148,11 +146,11 @@ function openModal(index: number) {
   const pokemon = filteredPokemons[index];
 
   const previousEvolution = pokemon.evolutionFrom
-  ? allPokemons.find(p => p.id === pokemon.evolutionFrom)
+  ? allPokemons.find(pokemon => pokemon.id === pokemon.evolutionFrom)
   : null;
 
   const nextEvolutions = pokemon.evolutionTo
-  ? pokemon.evolutionTo.map(id => allPokemons.find(p => p.id === id)).filter(Boolean)
+  ? pokemon.evolutionTo.map(id => allPokemons.find(pokemon => pokemon.id === id)).filter(Boolean)
   : [];
 
   const modalContainer = document.querySelector('#modal-container')!;
@@ -199,17 +197,18 @@ function openModal(index: number) {
             <p>${previousEvolution.name}</p>
           </div>` : ''}
 
-        ${nextEvolutions.map(p => `
-          <div class="evolution-card" data-id="${p!.id}">
+        ${nextEvolutions.map(pokemon => `
+          <div class="evolution-card" data-id="${pokemon!.id}">
             <p style="color:#666; font-size:0.7rem;">APRÈS</p>
-            <img src="${p!.image}" alt="${p!.name}" class="evolution-img"/>
-            <p>${p!.name}</p>
+            <img src="${pokemon!.image}" alt="${pokemon!.name}" class="evolution-img"/>
+            <p>${pokemon!.name}</p>
           </div>`).join('')}
       </div>
 
     </div>
 
-      ${index < filteredPokemons.length - 1 ? `<button class="nav-arrow nav-next">❯</button>` : ''}
+      ${index < filteredPokemons.length - 1 ? `<button class="nav-arrow nav-next">❯</button>` : ''} 
+      <!--C'est un raccourci pour écrire une condition "Si ... Alors ... Sinon ..." sur une seule ligne. -->
 
     </div>
   `;
@@ -221,10 +220,11 @@ function openModal(index: number) {
     currentPokemonIndex = null;
   };
 
+
   // 1. Fermer la modale
   document.querySelector('.modal-close')?.addEventListener('click', closeModal);
-  document.querySelector('#overlay-bg')?.addEventListener('click', (e) => {
-    if (e.target === document.querySelector('#overlay-bg')) closeModal();
+  document.querySelector('#overlay-bg')?.addEventListener('click', (event) => {
+    if (event.target === document.querySelector('#overlay-bg')) closeModal();
   });
 
   // 2. Navigation Évolution
@@ -232,13 +232,12 @@ function openModal(index: number) {
   
   evoCards.forEach(card => {
     card.addEventListener('click', () => {
-      // Maintenant que le HTML est corrigé, le getAttribute ne renverra plus null ou NaN
       const idStr = card.getAttribute('data-id');
       if (!idStr) return; // Sécurité
 
       const id = Number(idStr);
       
-      let newIndex = filteredPokemons.findIndex(p => p.id === id);
+      let newIndex = filteredPokemons.findIndex(pokemon => pokemon.id === id);
 
       // Si le pokémon est masqué par le filtre
       if (newIndex === -1) {
@@ -248,7 +247,7 @@ function openModal(index: number) {
         filteredPokemons = allPokemons;
         renderPokemonList(filteredPokemons);
 
-        newIndex = filteredPokemons.findIndex(p => p.id === id);
+        newIndex = filteredPokemons.findIndex(pokemon => pokemon.id === id);
       }
 
       if (newIndex !== -1) {
@@ -258,20 +257,20 @@ function openModal(index: number) {
   });
 
   // 3. Flèches Nav
-  document.querySelector('.nav-prev')?.addEventListener('click', (e) => {
-    e.stopPropagation();
+  document.querySelector('.nav-prev')?.addEventListener('click', (event) => {
+    event.stopPropagation();
     openModal(index - 1);
   });
 
-  document.querySelector('.nav-next')?.addEventListener('click', (e) => {
-    e.stopPropagation();
+  document.querySelector('.nav-next')?.addEventListener('click', (event) => {
+    event.stopPropagation();
     openModal(index + 1);
   });
 
   // 4. Cri
   if (pokemon.cries) {
-    document.querySelector('#cry-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
+    document.querySelector('#cry-btn')?.addEventListener('click', (event) => {
+      event.stopPropagation();
       new Audio(pokemon.cries!).play();
     })
   }
@@ -298,31 +297,29 @@ function setupCardsClick() {
   document.querySelectorAll('.pokemon-card').forEach(card => {
     card.addEventListener('click', () => {
       const id = Number(card.getAttribute('data-id'))
-      const index = filteredPokemons.findIndex(p => p.id === id);
+      const index = filteredPokemons.findIndex(pokemon => pokemon.id === id);
       if (index !== -1) openModal(index);
     })
   })
 }
 
-// NOUVEAU : Gestion des touches du clavier
 function setupGlobalKeyboardEvents() {
-  window.addEventListener('keydown', (e) => {
-    // Si aucune modale n'est ouverte (index est null), on ne fait rien
+  window.addEventListener('keydown', (event) => {
     if (currentPokemonIndex === null) return;
 
-    if (e.key === 'ArrowLeft') {
+    if (event.key === 'ArrowLeft') {
       // Flèche Gauche
       if (currentPokemonIndex > 0) {
         openModal(currentPokemonIndex - 1);
       }
     } 
-    else if (e.key === 'ArrowRight') {
+    else if (event.key === 'ArrowRight') {
       // Flèche Droite
       if (currentPokemonIndex < filteredPokemons.length - 1) {
         openModal(currentPokemonIndex + 1);
       }
     }
-    else if (e.key === 'Escape') {
+    else if (event.key === 'Escape') {
       // Touche Echap pour fermer
       document.querySelector('#modal-container')!.innerHTML = '';
       currentPokemonIndex = null;
