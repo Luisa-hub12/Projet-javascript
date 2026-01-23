@@ -32,6 +32,8 @@ let allPokemons: Pokemon[] = []
 let filteredPokemons: Pokemon[] = []
 let currentPokemonIndex: number | null = null
 
+let currentPage = 1
+let hasMore = true
 /* ======================
   INITIALISATION
 ====================== */
@@ -49,6 +51,7 @@ export async function initPokemonList() {
 
   renderPokemonGrid(filteredPokemons)
   setupGlobalListeners()
+  setupPagination()
 }
 
 function showLoading() {
@@ -72,6 +75,11 @@ function renderStaticStructure() {
     </div>
 
     <div id="pokemon-list" class="pokemon-list"></div>
+    <div class="pagination">
+      <button id="prev-page">⬅ Précédent</button>
+      <span id="page-indicator">Page 1</span>
+      <button id="next-page">Suivant ➡</button>
+    </div>
     <div id="modal-container"></div>
   `
 }
@@ -125,10 +133,11 @@ function setupGlobalListeners() {
   searchInput?.addEventListener('input', handleSearch)
 
   setupGlobalKeyboardEvents()
+  
 }
 
 /* ======================
-  MODALE (INCHANGÉE)
+  MODALE
 ====================== */
 
 function openModal(index: number) {
@@ -274,6 +283,43 @@ function renderStat(label: string, value: number) {
   `
 }
 
+
+
+function setupPagination() {
+  const prevBtn = document.getElementById('prev-page')
+  const nextBtn = document.getElementById('next-page')
+  const indicator = document.getElementById('page-indicator')
+
+
+  if (!prevBtn || !nextBtn || !indicator) return
+
+  prevBtn.addEventListener('click', async () => {
+    if (currentPage === 1) return
+    currentPage--
+    await updatePage()
+  })
+
+  nextBtn.addEventListener('click', async () => {
+    if (!hasMore) return
+    currentPage++
+    await updatePage()
+  })
+
+  async function updatePage() {
+    showLoading()
+
+    const newPokemons = await fetchPokemons(currentPage)
+
+    hasMore = newPokemons.length > 0
+    allPokemons = newPokemons
+    filteredPokemons = [...allPokemons]
+
+    renderPokemonGrid(filteredPokemons)
+    indicator!.textContent = `Page ${currentPage}`
+  }
+}
+
+
 /* ======================
   EVENTS
 ====================== */
@@ -304,3 +350,4 @@ function setupGlobalKeyboardEvents() {
     }
   })
 }
+
