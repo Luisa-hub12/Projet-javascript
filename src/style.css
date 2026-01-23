@@ -325,6 +325,26 @@ body {
 .nav-prev { left: 20px; }
 .nav-next { right: 20px; }
 
+.evo-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.badge-prev {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.badge-next {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
 /* =========================================
    7. COULEURS DES TYPES (BADGES)
 ========================================= */
