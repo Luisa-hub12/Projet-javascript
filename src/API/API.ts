@@ -21,7 +21,7 @@ export async function fetchPokemons(page : number): Promise<Pokemon[]> {
       const parent = pokemons.find(pokemon => pokemon.id === pokemon.evolutionFrom)
 
       if (parent) {
-        parent.evolutionTo ??= []
+        if (!parent.evolutionTo) parent.evolutionTo = []
         parent.evolutionTo.push(pokemon.id)
       }
     }

@@ -11,7 +11,7 @@ export interface Pokemon {
   type: string[]
   abilities: string[]
   stats: {
-    hp: number
+    hp: number 
     attack: number
     defense: number
     speed: number
@@ -20,11 +20,11 @@ export interface Pokemon {
   taille: number
   cries?: string 
   evolutionFrom?: number
-  evolutionTo?: number[] // . ? veut dire que la propriété n'est pas obligatoire. Autrement dit, un pokemon peut posseder cette propriété mais il en a pas l'obligation.
+  evolutionTo?: number[]
 }
 
 /* ======================
-  VARIABLES
+  VARIABLES GLOBALES
 ====================== */
 
 const app = document.querySelector<HTMLDivElement>('#app')!
@@ -34,102 +34,154 @@ let currentPokemonIndex: number | null = null;
 
 
 /* ======================
-  LISTE
+  INITIALISATION
 ====================== */
 
 export async function initPokemonList() {
+  // 1. On dessine l'interface statique (Barre de recherche, filtres...)
+  renderStaticStructure();
+  
+  // 2. On affiche le chargement DANS la liste (pas tout l'écran)
   showLoading()
 
+  // 3. On récupère les données
   const currentPage = 1
   allPokemons = await fetchPokemons(currentPage)
-  filteredPokemons = allPokemons
+  filteredPokemons = [...allPokemons]; // On fait une copie propre
 
-  renderPokemonList(allPokemons)
-  setupGlobalKeyboardEvents(); 
+  // 4. On nettoie le chargement et on affiche la grille
+  const listContainer = document.getElementById('pokemon-list');
+  if(listContainer) listContainer.innerHTML = ''; 
+  
+  renderPokemonGrid(filteredPokemons);
+  
+  // 5. On active les écouteurs d'événements (Recherche, Filtres)
+  setupGlobalListeners();
 }
 
 function showLoading() {
-  app.innerHTML = `
-  <p style="color:#333; font-size:1.5rem; text-align:center; margin-top:50px;">
-  ⚙️ Chargement du Pokédex...</p>`
+  const listContainer = document.getElementById('pokemon-list');
+  // Sécurité : on vérifie que le conteneur existe
+  if (listContainer) {
+    listContainer.innerHTML = `
+    <p style="color:#333; font-size:1.5rem; text-align:center; margin-top:50px;">
+    ⚙️ Chargement du Pokédex...</p>`
+  }
 }
 
-function renderPokemonList(pokemons: Pokemon[]) 
+/* ======================
+  RENDERING (AFFICHAGE)
+====================== */
+
+// AFFICHE LA STRUCTURE FIXE (Une seule fois au démarrage)
+function renderStaticStructure() 
 {
   app.innerHTML = `
   <div class="header-controls">
     <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
-    <button id="advanced-filter" class="filter-button"> FILTRE </button>
-  </div>
+    </div>
   <br>
 
-  <div id="fiter-bar" class="fiter-bar">
-  <div class="filter-group">
-    <label>Type</label>
-    <select id="filter-type">
-      <option value="">Tous</option>
-      <option value"fire">Fire</option>
-      <option value="grass">Grass</option>
-      <option value="poison">Poison</option>
-    </select>
-  </div>
-
-  <div class="filter-group">
-    <label>Capacité</label>
-    <input id="filter-ability" type="text" placeholder="Écrivez ici!"/>
-  </div>
-
-  <div class="filter-group">
-    <label>Trier par ID</label>
-    <select id="filter-sort">
-     <!--<option value="asc">Croissant (1-151)</option> -->
-     <!--<option value="desc">Décroissant (151-1)</option> -->
-    </select>
-  </div>
-
- 
-    <div id="pokemon-list" class="pokemon-list">
-      ${pokemons
-        .map(pokemon => `
-          <div class="pokemon-card" data-id="${pokemon.id}">
-            <img src="${pokemon.image}" loading="lazy" />
-            <h2>${pokemon.name}</h2>
-          </div>
-        `).join('')}
-    </div>
+  <div id="filter-bar" class="filter-bar" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
     
-    <div id="modal-container"></div>
-    <div id="pokemon-bottom"></div>
-  `;
+    <div class="filter-group">
+      <label>Type</label>
+      <select id="filter-type">
+        <option value="">Tous</option>
+        <option value="fire">Feu</option>
+        <option value="grass">Plante</option>
+        <option value="poison">Poison</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Tri</label>
+      <select id="filter-sort">
+       <option value="asc">Numéro croissant</option>
+       <option value="desc">Numéro décroissant</option>
+       <option value="az">A-Z</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div id="pokemon-list" class="pokemon-list"></div>
   
-  //setupAdvancedSearch();
-  setupSearch();
+  <div id="modal-container"></div>
+  `;
+}
+
+// AFFICHE UNIQUEMENT LES CARTES (Se met à jour quand on filtre)
+function renderPokemonGrid(pokemons: Pokemon[]) {
+  const container = document.getElementById('pokemon-list');
+  if (!container) return;
+
+  if (pokemons.length === 0) {
+    container.innerHTML = `<p style="text-align:center; width:100%; margin-top:20px;">Aucun Pokémon trouvé.</p>`;
+    return;
+  }
+
+  container.innerHTML = pokemons.map(pokemon => `
+      <div class="pokemon-card" data-id="${pokemon.id}">
+        <img src="${pokemon.image}" loading="lazy" />
+        <h2>${pokemon.name}</h2>
+        <div class="types-mini" style="display:flex; gap:5px; justify-content:center;">
+            ${pokemon.type.map(t => `<span class="type-dot type-${t}" style="width:10px; height:10px; border-radius:50%; background:var(--bg-type-${t}, grey); display:inline-block;"></span>`).join('')}
+        </div>
+      </div>
+    `).join('');
+  
+  // On réattache le clic sur les nouvelles cartes
   setupCardsClick();
 }
 
 
 /* ======================
-  SEARCH
+  LOGIQUE DES FILTRES
 ====================== */
-  
-function setupSearch() 
-{
-  const input = document.querySelector<HTMLInputElement>('#search');
-  if (!input) return;
 
-  input.addEventListener('input', () => {
-    const query = input.value.toLowerCase();
-    
-    filteredPokemons = allPokemons.filter(pokemon =>
-      pokemon.name.toLowerCase().includes(query)
-    );
-    
-    renderPokemonList(filteredPokemons);
-  });
+function setupGlobalListeners() {
+  const searchInput = document.querySelector<HTMLInputElement>('#search');
+  const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type');
+  const sortSelect = document.querySelector<HTMLSelectElement>('#filter-sort');
+
+  // Fonction centrale de filtrage
+  const handleFilters = () => {
+    const query = searchInput?.value.toLowerCase() || '';
+    const selectedType = typeSelect?.value || '';
+    const sortOrder = sortSelect?.value || 'asc';
+
+    // 1. Filtrer
+    filteredPokemons = allPokemons.filter(pokemon => {
+      const matchName = pokemon.name.toLowerCase().includes(query);
+      const matchType = selectedType === '' || pokemon.type.includes(selectedType);
+      return matchName && matchType;
+    });
+
+    // 2. Trier
+    filteredPokemons.sort((a, b) => {
+      if (sortOrder === 'asc') return a.id - b.id;
+      if (sortOrder === 'desc') return b.id - a.id;
+      if (sortOrder === 'az') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
+    // 3. Afficher le résultat
+    renderPokemonGrid(filteredPokemons);
+  };
+
+  // On écoute les changements
+  searchInput?.addEventListener('input', handleFilters);
+  typeSelect?.addEventListener('change', handleFilters);
+  sortSelect?.addEventListener('change', handleFilters);
+
+  // Clavier (Flèches) pour la modale
+  setupGlobalKeyboardEvents();
 }
 
+
 /* ======================
-  DETAIL (MODALE)
+  DÉTAIL (MODALE)
 ====================== */
 
 function openModal(index: number) {
@@ -138,12 +190,13 @@ function openModal(index: number) {
   currentPokemonIndex = index;
   const pokemon = filteredPokemons[index];
 
+  // Recherche dans TOUS les pokemons pour les évolutions (même si masqués par le filtre)
   const previousEvolution = pokemon.evolutionFrom
-  ? allPokemons.find(pokemon => pokemon.id === pokemon.evolutionFrom)
+  ? allPokemons.find(p => p.id === pokemon.evolutionFrom)
   : null;
 
   const nextEvolutions = pokemon.evolutionTo
-  ? pokemon.evolutionTo.map(id => allPokemons.find(pokemon => pokemon.id === id)).filter(Boolean)
+  ? pokemon.evolutionTo.map(id => allPokemons.find(p => p.id === id)).filter(Boolean)
   : [];
 
   const modalContainer = document.querySelector('#modal-container')!;
@@ -160,7 +213,7 @@ function openModal(index: number) {
            <img src="${pokemon.image}" />
         </div>
         
-        <h2>${pokemon.name}</h2>
+        <h2>${pokemon.name} <span style="font-size:0.6em; opacity:0.6">#${pokemon.id}</span></h2>
 
         <div class="types">
           ${pokemon.type
@@ -180,29 +233,27 @@ function openModal(index: number) {
           ${renderStat('VIT', pokemon.stats.speed)}
         </ul>
 
-        ${pokemon.cries ? `<button id="cry-btn">🔊 Cri du Pokémon</button>` : ''}
+        ${pokemon.cries ? `<button id="cry-btn">🔊 Cri</button>` : ''}
       
-      <div class="evolutions">
-        ${previousEvolution ? `
-          <div class="evolution-card" data-id="${previousEvolution.id}">
-            <p style="color:#666; font-size:0.7rem;">AVANT</p>
-            <img src="${previousEvolution.image}" alt="${previousEvolution.name}" class="evolution-img"/>
-            <p>${previousEvolution.name}</p>
-          </div>` : ''}
+        <div class="evolutions">
+            ${previousEvolution ? `
+            <div class="evolution-card" data-id="${previousEvolution.id}">
+                <p style="color:#666; font-size:0.7rem;">AVANT</p>
+                <img src="${previousEvolution.image}" class="evolution-img"/>
+                <p>${previousEvolution.name}</p>
+            </div>` : ''}
 
-        ${nextEvolutions.map(pokemon => `
-          <div class="evolution-card" data-id="${pokemon!.id}">
-            <p style="color:#666; font-size:0.7rem;">APRÈS</p>
-            <img src="${pokemon!.image}" alt="${pokemon!.name}" class="evolution-img"/>
-            <p>${pokemon!.name}</p>
-          </div>`).join('')}
+            ${nextEvolutions.map(p => `
+            <div class="evolution-card" data-id="${p!.id}">
+                <p style="color:#666; font-size:0.7rem;">APRÈS</p>
+                <img src="${p!.image}" class="evolution-img"/>
+                <p>${p!.name}</p>
+            </div>`).join('')}
+        </div>
+
       </div>
 
-    </div>
-
       ${index < filteredPokemons.length - 1 ? `<button class="nav-arrow nav-next">❯</button>` : ''} 
-      <!--C'est un raccourci pour écrire une condition "Si ... Alors ... Sinon ..." sur une seule ligne. -->
-
     </div>
   `;
 
@@ -213,43 +264,46 @@ function openModal(index: number) {
     currentPokemonIndex = null;
   };
 
-
-  // 1. Fermer la modale
   document.querySelector('.modal-close')?.addEventListener('click', closeModal);
   document.querySelector('#overlay-bg')?.addEventListener('click', (event) => {
     if (event.target === document.querySelector('#overlay-bg')) closeModal();
   });
 
-  // 2. Navigation Évolution
+  // Navigation Évolution (CORRIGÉE)
   const evoCards = document.querySelectorAll('.evolution-card');
-  
   evoCards.forEach(card => {
     card.addEventListener('click', () => {
       const idStr = card.getAttribute('data-id');
-      if (!idStr) return; // Sécurité
-
+      if (!idStr) return;
       const id = Number(idStr);
       
-      let newIndex = filteredPokemons.findIndex(pokemon => pokemon.id === id);
-
-      // Si le pokémon est masqué par le filtre
+      // On cherche l'index dans la liste FILTRÉE
+      let newIndex = filteredPokemons.findIndex(p => p.id === id);
+      
+      // Si le pokemon n'est pas dans la liste filtrée (ex: on cherche "feu" mais l'évolution est "vol")
+      // On décide ici de réinitialiser la recherche pour le montrer, ou d'alerter l'utilisateur.
+      // Option simple : on réinitialise les filtres pour afficher l'évolution
       if (newIndex === -1) {
-        const searchInput = document.querySelector<HTMLInputElement>('#search');
-        if (searchInput) searchInput.value = '';
-
-        filteredPokemons = allPokemons;
-        renderPokemonList(filteredPokemons);
-
-        newIndex = filteredPokemons.findIndex(pokemon => pokemon.id === id);
+         // Reset des variables
+         filteredPokemons = allPokemons;
+         
+         // Reset visuel des inputs
+         const searchInput = document.querySelector<HTMLInputElement>('#search');
+         if(searchInput) searchInput.value = "";
+         const typeInput = document.querySelector<HTMLSelectElement>('#filter-type');
+         if(typeInput) typeInput.value = "";
+         
+         // On rafraichit la grille arrière-plan
+         renderPokemonGrid(filteredPokemons);
+         
+         // On trouve le nouvel index
+         newIndex = filteredPokemons.findIndex(p => p.id === id);
       }
 
-      if (newIndex !== -1) {
-        openModal(newIndex);
-      }
+      if (newIndex !== -1) openModal(newIndex);
     });
   });
 
-  // 3. Flèches Nav
   document.querySelector('.nav-prev')?.addEventListener('click', (event) => {
     event.stopPropagation();
     openModal(index - 1);
@@ -260,7 +314,6 @@ function openModal(index: number) {
     openModal(index + 1);
   });
 
-  // 4. Cri
   if (pokemon.cries) {
     document.querySelector('#cry-btn')?.addEventListener('click', (event) => {
       event.stopPropagation();
@@ -270,7 +323,8 @@ function openModal(index: number) {
 }
 
 function renderStat(label: string, value: number) {
-  const percent = Math.min(value, 100);
+  // Ajustement visuel pour ne pas dépasser 100% de la barre
+  const percent = Math.min(value, 150) / 1.5; 
   return `
     <div class="stat-row">
       <strong>${label}</strong>
@@ -301,19 +355,12 @@ function setupGlobalKeyboardEvents() {
     if (currentPokemonIndex === null) return;
 
     if (event.key === 'ArrowLeft') {
-      // Flèche Gauche
-      if (currentPokemonIndex > 0) {
-        openModal(currentPokemonIndex - 1);
-      }
+      if (currentPokemonIndex > 0) openModal(currentPokemonIndex - 1);
     } 
     else if (event.key === 'ArrowRight') {
-      // Flèche Droite
-      if (currentPokemonIndex < filteredPokemons.length - 1) {
-        openModal(currentPokemonIndex + 1);
-      }
+      if (currentPokemonIndex < filteredPokemons.length - 1) openModal(currentPokemonIndex + 1);
     }
     else if (event.key === 'Escape') {
-      // Touche Echap pour fermer
       document.querySelector('#modal-container')!.innerHTML = '';
       currentPokemonIndex = null;
     }
