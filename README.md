@@ -4,24 +4,24 @@ Utiliser la base fourni dans le dossier my-first-pokedex-coda, ou créer votre p
 Les features
 
     Pokédex
-        Lister pokemon. ✓ 
+        Lister pokemon. ✓
             - Par ordre alphabétique ✓
             Recherche par texte sur le nom ✓
-           
+
             Recherche avancé  (On rajoute u bar de filtre pour la recherche avencée)
-                Par type ---> en cours ---> 
+                Par type ---> en cours
 
-                    Par id ---> en cours ---> affiché sur la carte mais la barre de recherche ne marche pas
+                    Par id ---> en cours
 
-                    Par abilities ---> en cours---> pas affiché sur la carte mais la barre de recherche ne marche pas
+                    Par abilities ---> en cours
 
                     Par génération
 
             Fiche de base
                     id ✓
                     Nom ✓
-                    Stats ✓ 
-                    Cri ✓ 
+                    Stats ✓
+                    Cri ✓
                     Image ✓
                     Type ✓
             Navigation
@@ -29,13 +29,13 @@ Les features
                     Passez au pokemon suivant / précedent depuis la fiche ✓
     Créateur d’équipe
         En tant que joueur
-       
+
         Je veux pouvoir créer une équipe, voir les types qui la compose ainsi que les attaques avec leurs types qui sont présent
-       
+
         Afin d’optimiser mon équipe en vue d’un combat difficile
-       
+
             En tant que joueur
-       
+
         Je veux sauvegarder et charger des équipe de pokemon dans mon localStorage
         Afin de modifier une ancienne équipe sans perdre les autres
             En tant que joueur

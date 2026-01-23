@@ -1,25 +1,27 @@
 import type { Pokemon } from '../pokemon_list'
 
-export async function fetchPokemons(limit = 400): Promise<Pokemon[]> {
-  const pokemons: Pokemon[] = []
-  const promises = []
+export async function fetchPokemons(page : number): Promise<Pokemon[]> {
+  const limit = 20;
+  const offset = (page - 1) * limit;
 
-  // On lance toutes les requêtes en parallèle
-  for (let i = 1; i <= limit; i++) {
-    promises.push(loadPokemonData(i))
-  }
+  const listResponse = await fetch(
+    `https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offset}`
+  );
+   const listData = await listResponse.json()
 
-  // On attend la fin de toutes les requêtes
-  const results = await Promise.all(promises)
-  pokemons.push(...results)
+  const promises = listData.results.map((pokemon: any) =>
+    loadPokemonDataFromUrl(pokemon.url)
+  )
+
+  const pokemons: Pokemon[] = await Promise.all(promises)
 
   // Calcul des évolutions "suivantes" (enfants)
   pokemons.forEach(pokemon => {
     if (pokemon.evolutionFrom) {
-      const parent = pokemons.find(p => p.id === pokemon.evolutionFrom)
+      const parent = pokemons.find(pokemon => pokemon.id === pokemon.evolutionFrom)
 
       if (parent) {
-        if (!parent.evolutionTo) parent.evolutionTo = []
+        parent.evolutionTo ??= []
         parent.evolutionTo.push(pokemon.id)
       }
     }
@@ -29,9 +31,15 @@ export async function fetchPokemons(limit = 400): Promise<Pokemon[]> {
 }
 
 
+async function loadPokemonDataFromUrl(url: string): Promise<Pokemon> {
+  const response = await fetch(url)
+  const data = await response.json()
+  return loadPokemonData(data.id)
+}
 async function loadPokemonData(id: number): Promise<Pokemon> {
   const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
   const data = await response.json()
+
 
   const speciesResponse = await fetch(data.species.url)
   const speciesData = await speciesResponse.json()

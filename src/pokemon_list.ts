@@ -38,31 +38,24 @@ let currentPokemonIndex: number | null = null;
 ====================== */
 
 export async function initPokemonList() {
-  app.innerHTML = `<p style="color:#333; font-size:1.5rem; text-align:center; margin-top:50px;">⚙️ Chargement du Pokédex...</p>`
-  allPokemons = await fetchPokemons()
+  showLoading()
+
+  const currentPage = 1
+  allPokemons = await fetchPokemons(currentPage)
   filteredPokemons = allPokemons
+
   renderPokemonList(allPokemons)
   setupGlobalKeyboardEvents(); 
 }
 
+function showLoading() {
+  app.innerHTML = `
+  <p style="color:#333; font-size:1.5rem; text-align:center; margin-top:50px;">
+  ⚙️ Chargement du Pokédex...</p>`
+}
+
 function renderPokemonList(pokemons: Pokemon[]) 
 {
-  const listContainer = document.querySelector('#pokemon-list');
-
-  if (listContainer) 
-    {
-    listContainer.innerHTML = pokemons
-      .map(pokemon => `
-        <div class="pokemon-card" data-id="${pokemon.id}">
-          <img src="${pokemon.image}" loading="lazy" />
-          <h2>${pokemon.name}</h2>
-        </div>
-      `).join('');
-    
-    setupCardsClick(); 
-    return; 
-  }
-
   app.innerHTML = `
   <div class="header-controls">
     <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
