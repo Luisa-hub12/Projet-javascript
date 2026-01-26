@@ -4,11 +4,12 @@ import { handleAddToTeam } from './team/team_controller'
 import { team } from './team/team_store'
 
 
+
 /* ======================
   TYPES
 ====================== */
 
-export interface Pokemon {
+export interface Pokemon { // bunları model.ts isimli başka bir dosyaya koy
   id: number
   name: string
   image: string
@@ -41,6 +42,8 @@ let currentPokemonIndex: number | null = null
 
 let currentPage = 1
 let hasMore = true
+
+
 /* ======================
   INITIALISATION
 ====================== */
@@ -71,7 +74,7 @@ export async function initPokemonList() {
 }
 
 function showLoading() {
-  const listContainer = document.getElementById('pokemon-list')
+  const listContainer = document.getElementById('pokemon-list');
   if (listContainer) {
     listContainer.innerHTML = `
       <div class="loading-container">
@@ -119,7 +122,8 @@ function animateProgress() {
   RENDERING
 ====================== */
 
-function renderStaticStructure() {
+function renderStaticStructure() 
+{
   app.innerHTML = `
     <div class="header-controls">
       <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />

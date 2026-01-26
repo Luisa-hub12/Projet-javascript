@@ -9,7 +9,7 @@ Les features
             Recherche par texte sur le nom ✓
 
             Recherche avancé  (On rajoute u bar de filtre pour la recherche avencée)
-                Par type ---> en cours
+                Par type ✓
 
                     Par id ---> en cours
 

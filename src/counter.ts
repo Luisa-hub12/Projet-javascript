@@ -9,3 +9,4 @@ export function setupCounter(element: HTMLButtonElement)
   setCounter(0)
 }
 
+// counter için html+ css yap
