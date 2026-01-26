@@ -118,6 +118,20 @@ function renderStaticStructure() {
       <button id="prev-page" disabled>⬅ Précédent</button>
       <span id="page-indicator">Page 1</span>
       <button id="next-page">Suivant ➡</button>
+      
+    <div class="filter-group">
+        <label>Type</label>
+        <select id="filter-type">
+          <option value="all">Tous</option> <option value="fire">Fire</option>
+          <option value="grass">Grass</option>
+          <option value="water">Water</option>
+          <option value="electric">Electric</option>
+          <option value="poison">Poison</option>
+          <option value="bug">Bug</option>
+          <option value="normal">Normal</option>
+          <option value="flying">Flying</option>
+        </select>
+      </div>
     </div>
     <div id="modal-container"></div>
   `
@@ -187,15 +201,15 @@ function openModal(index: number) {
 
   // 1. Récupération sécurisée de l'évolution précédente
   const previousEvolution = pokemon.evolutionFrom
-    ? allPokemons.find(p => p.id === pokemon.evolutionFrom)
+    ? allPokemons.find(pokemon => pokemon.id === pokemon.evolutionFrom)
     : null;
 
   // 2. Récupération sécurisée des évolutions suivantes
   // Le changement ici : (p): p is Pokemon => !!p permet de garantir à TypeScript que p n'est pas null
   const nextEvolutions = pokemon.evolutionTo
     ? pokemon.evolutionTo
-        .map(id => allPokemons.find(p => p.id === id))
-        .filter((p): p is Pokemon => !!p) 
+        .map(id => allPokemons.find(pokemon => pokemon.id === id))
+        .filter((pokemon): pokemon is Pokemon => !!pokemon) 
     : [];
 
   const modalContainer = document.querySelector('#modal-container')!;
@@ -215,7 +229,7 @@ function openModal(index: number) {
         <h2>${pokemon.name} <span style="font-size:0.6em; opacity:0.6">#${pokemon.id}</span></h2>
 
         <div class="types">
-          ${pokemon.type.map(t => `<span class="type-badge type-${t}">${t}</span>`).join('')}
+          ${pokemon.type.map(typepoke => `<span class="type-badge type-${typepoke}">${typepoke}</span>`).join('')}
         </div>
 
         <div style="display:flex; justify-content:center; gap:20px; margin: 15px 0;">
@@ -241,11 +255,11 @@ function openModal(index: number) {
               <p>${previousEvolution.name}</p>
             </div>` : ''}
 
-          ${nextEvolutions.map(p => `
-            <div class="evolution-card" data-id="${p.id}">
+          ${nextEvolutions.map(pokemon => `
+            <div class="evolution-card" data-id="${pokemon.id}">
               <span class="evo-badge badge-next">APRÈS</span>
-              <img src="${p.image}" class="evolution-img"/>
-              <p>${p.name}</p>
+              <img src="${pokemon.image}" class="evolution-img"/>
+              <p>${pokemon.name}</p>
             </div>`).join('')}
 
         </div>
@@ -263,8 +277,8 @@ function openModal(index: number) {
   }
 
   document.querySelector('.modal-close')?.addEventListener('click', closeModal)
-  document.querySelector('#overlay-bg')?.addEventListener('click', e => {
-    if (e.target === document.querySelector('#overlay-bg')) closeModal()
+  document.querySelector('#overlay-bg')?.addEventListener('click', event => {
+    if (event.target === document.querySelector('#overlay-bg')) closeModal()
   })
 
   // Gestion du clic sur les cartes d'évolution
@@ -280,7 +294,7 @@ function openModal(index: number) {
       if (newIndex === -1) {
         filteredPokemons = [...allPokemons] // Copie propre
         renderPokemonGrid(filteredPokemons) // Mise à jour de la grille derrière
-        newIndex = filteredPokemons.findIndex(p => p.id === id)
+        newIndex = filteredPokemons.findIndex(pokemon => pokemon.id === id)
         
         // Petit reset de la barre de recherche pour être cohérent
         const searchInput = document.querySelector<HTMLInputElement>('#search')
@@ -291,19 +305,19 @@ function openModal(index: number) {
     })
   })
 
-  document.querySelector('.nav-prev')?.addEventListener('click', e => {
-    e.stopPropagation()
+  document.querySelector('.nav-prev')?.addEventListener('click', event => {
+    event.stopPropagation()
     openModal(index - 1)
   })
 
-  document.querySelector('.nav-next')?.addEventListener('click', e => {
-    e.stopPropagation()
+  document.querySelector('.nav-next')?.addEventListener('click', event => {
+    event.stopPropagation()
     openModal(index + 1)
   })
 
   if (pokemon.cries) {
-    document.querySelector('#cry-btn')?.addEventListener('click', e => {
-      e.stopPropagation()
+    document.querySelector('#cry-btn')?.addEventListener('click', event => {
+      event.stopPropagation()
       new Audio(pokemon.cries!).play()
     })
   }
@@ -395,7 +409,7 @@ function setupCardsClick() {
   document.querySelectorAll('.pokemon-card').forEach(card => {
     card.addEventListener('click', () => {
       const id = Number(card.getAttribute('data-id'))
-      const index = filteredPokemons.findIndex(p => p.id === id)
+      const index = filteredPokemons.findIndex(pokemon => pokemon.id === id)
       if (index !== -1) openModal(index)
     })
   })

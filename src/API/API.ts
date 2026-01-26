@@ -1,10 +1,12 @@
 import type { Pokemon } from '../pokemon_list' 
 
-export async function fetchPokemons(page : number): Promise<Pokemon[]> {
+export async function fetchPokemons(page : number): Promise<Pokemon[]> 
+{
   const limit = 30; 
   const offset = (page - 1) * limit; 
 
-  const listResponse = await fetch(
+  const listResponse = await fetch
+  (
     `https://pokeapi.co/api/v2/pokemon/?limit=${limit}&offset=${offset}`
   );
   const listData = await listResponse.json()
@@ -78,3 +80,19 @@ async function loadPokemonData(id: number): Promise<Pokemon> {
     evolutionTo: []
   }
 }
+
+// RECERCHE AVANCEE/FILTRE(TYPE)
+
+export function filterPokemonByType (allPokemons:Pokemon[], choice: string)
+{
+  console.log("Selected Type:", choice); 
+
+  if (!choice || choice ==="all")
+  {
+      return  allPokemons
+  }
+  return allPokemons.filter(pokemon => 
+    pokemon.type.includes(choice.toLowerCase())
+  );
+}
+
