@@ -33,6 +33,8 @@ let allPokemons: Pokemon[] = []
 let filteredPokemons: Pokemon[] = []
 let currentPokemonIndex: number | null = null
 
+let currentPage = 1
+let hasMore = true
 /* ======================
   INITIALISATION
 ====================== */
@@ -49,15 +51,16 @@ export async function initPokemonList()
   const listContainer = document.getElementById('pokemon-list')
   if (listContainer) listContainer.innerHTML = ''
 
-  renderPokemonGrid(filteredPokemons);
-  setupGlobalListeners();
+  renderPokemonGrid(filteredPokemons)
+  setupGlobalListeners()
+  setupPagination()
 }
 
-function showLoading() {
+function showLoading() 
+{
   const listContainer = document.getElementById('pokemon-list')
   if (listContainer) {
     listContainer.innerHTML = `
-      <p style="color:#333; font-size:1.5rem; text-align:center; margin-top:50px;">
         ⚙️ Chargement du Pokédex...
       </p>`
   }
@@ -154,7 +157,7 @@ function setupGlobalListeners()
 }
 
 /* ======================
-  MODALE (INCHANGÉE)
+  MODALE
 ====================== */
 
 function openModal(index: number) {
@@ -300,6 +303,43 @@ function renderStat(label: string, value: number) {
   `
 }
 
+
+
+function setupPagination() {
+  const prevBtn = document.getElementById('prev-page')
+  const nextBtn = document.getElementById('next-page')
+  const indicator = document.getElementById('page-indicator')
+
+
+  if (!prevBtn || !nextBtn || !indicator) return
+
+  prevBtn.addEventListener('click', async () => {
+    if (currentPage === 1) return
+    currentPage--
+    await updatePage()
+  })
+
+  nextBtn.addEventListener('click', async () => {
+    if (!hasMore) return
+    currentPage++
+    await updatePage()
+  })
+
+  async function updatePage() {
+    showLoading()
+
+    const newPokemons = await fetchPokemons(currentPage)
+
+    hasMore = newPokemons.length > 0
+    allPokemons = newPokemons
+    filteredPokemons = [...allPokemons]
+
+    renderPokemonGrid(filteredPokemons)
+    indicator!.textContent = `Page ${currentPage}`
+  }
+}
+
+
 /* ======================
   EVENTS
 ====================== */
@@ -330,3 +370,4 @@ function setupGlobalKeyboardEvents() {
     }
   })
 }
+
