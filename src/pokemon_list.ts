@@ -112,12 +112,6 @@ function renderStaticStructure() {
     <div class="header-controls">
       <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
     </div>
-
-    <div id="pokemon-list" class="pokemon-list"></div>
-    <div class="pagination">
-      <button id="prev-page" disabled>⬅ Précédent</button>
-      <span id="page-indicator">Page 1</span>
-      <button id="next-page">Suivant ➡</button>
       
     <div class="filter-group">
         <label>Type</label>
@@ -133,6 +127,14 @@ function renderStaticStructure() {
         </select>
       </div>
     </div>
+
+
+    <div id="pokemon-list" class="pokemon-list"></div>
+    <div class="pagination">
+      <button id="prev-page" disabled>⬅ Précédent</button>
+      <span id="page-indicator">Page 1</span>
+      <button id="next-page">Suivant ➡</button>
+      </div>
     <div id="modal-container"></div>
   `
 }
@@ -169,24 +171,39 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
 /* ======================
   RECHERCHE (IDENTIQUE À L’ORIGINE)
 ====================== */
-
 function setupGlobalListeners() {
   const searchInput = document.querySelector<HTMLInputElement>('#search')
+  const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
 
-  const handleSearch = () => {
+  // Cette fonction combine les deux filtres
+  const applyFilters = () => {
+    // 1. On récupère la valeur du texte (minuscule)
     const query = searchInput?.value.toLowerCase() || ''
+    
+    // 2. On récupère la valeur du select
+    const selectedType = typeSelect?.value || 'all'
 
-    filteredPokemons = allPokemons.filter(pokemon =>
-      pokemon.name.toLowerCase().includes(query)
-    )
+    // 3. On filtre le tableau original 'allPokemons'
+    filteredPokemons = allPokemons.filter(pokemon => {
+      // Condition A : Le nom contient la recherche
+      const matchName = pokemon.name.toLowerCase().includes(query)
 
+      // Condition B : Le type est 'all' OU le pokemon possède ce type
+      const matchType = selectedType === 'all' || pokemon.type.includes(selectedType)
+
+      // IMPORTANT : On retourne true seulement si A ET B sont vrais
+      return matchName && matchType
+    })
+
+    // 4. On redessine la grille avec le résultat combiné
     renderPokemonGrid(filteredPokemons)
   }
 
-  searchInput?.addEventListener('input', handleSearch)
+  // On attache la MÊME fonction aux deux événements
+  searchInput?.addEventListener('input', applyFilters)
+  typeSelect?.addEventListener('change', applyFilters)
 
   setupGlobalKeyboardEvents()
-  
 }
 
 /* ======================
