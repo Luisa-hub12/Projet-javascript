@@ -1,5 +1,10 @@
 import type { Pokemon } from '../pokemon_list' 
 
+export async function fetchPokemonById(id: number): Promise<Pokemon> {
+  return loadPokemonData(id)
+}
+
+
 export async function fetchPokemons(page : number): Promise<Pokemon[]> 
 {
   const limit = 30; 
@@ -19,22 +24,6 @@ export async function fetchPokemons(page : number): Promise<Pokemon[]>
   const pokemons: Pokemon[] = await Promise.all(promises)
 
 
-  pokemons.forEach(child => { 
-    
-    if (child.evolutionFrom) {
-
-      const parent = pokemons.find(p => p.id === child.evolutionFrom)
-
-      if (parent) {
-        if (!parent.evolutionTo) parent.evolutionTo = []
-        
-
-        if (!parent.evolutionTo.includes(child.id)) {
-          parent.evolutionTo.push(child.id)
-        }
-      }
-    }
-  })
 
   return pokemons
 }

@@ -1,4 +1,6 @@
 import { fetchPokemons } from './API/API'
+import { fetchPokemonById } from './API/API'
+
 
 /* ======================
   TYPES
@@ -28,9 +30,12 @@ export interface Pokemon {
 ====================== */
 
 const app = document.querySelector<HTMLDivElement>('#app')!
+
+let pokedex: Pokemon[] = [] // tous les pokémons chargés
 let allPokemons: Pokemon[] = []
 let filteredPokemons: Pokemon[] = []
 let currentPokemonIndex: number | null = null
+
 
 let currentPage = 1
 let hasMore = true
@@ -43,8 +48,13 @@ export async function initPokemonList() {
   showLoading()
   const stopAnimation = animateProgress()
 
-  const currentPage = 1
   allPokemons = await fetchPokemons(currentPage)
+
+  allPokemons.forEach(pokemon => {
+  if (!pokedex.some(pokedex => pokedex.id === pokemon.id)) {
+    pokedex.push(pokemon)
+  }
+})
   filteredPokemons = [...allPokemons]
 
   stopAnimation()
@@ -143,13 +153,37 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
   const container = document.getElementById('pokemon-list')
   if (!container) return
 
+  // --- GESTION DU CAS "VIDE" ---
   if (pokemons.length === 0) {
     container.innerHTML = `
-      <p style="text-align:center; width:100%; margin-top:20px;">
-        Aucun Pokémon trouvé.
-      </p>`
+      <div class="no-results">
+        <div class="no-results-icon">🍃</div>
+        <h3>Oups ! Aucun Pokémon trouvé.</h3>
+        <p>Il semble que ce Pokémon se cache très bien dans les hautes herbes...</p>
+        <button id="btn-reset" class="btn-reset">
+          🔄 Réinitialiser les filtres
+        </button>
+      </div>`
+    
+    // On attache l'événement au bouton "Réinitialiser" juste après l'avoir créé
+    setTimeout(() => {
+      document.getElementById('btn-reset')?.addEventListener('click', () => {
+        const searchInput = document.querySelector<HTMLInputElement>('#search')
+        const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
+        
+        // Reset des inputs
+        if(searchInput) searchInput.value = ''
+        if(typeSelect) typeSelect.value = 'all'
+        
+        // Reset des données
+        filteredPokemons = [...allPokemons]
+        renderPokemonGrid(filteredPokemons)
+      })
+    }, 0)
+    
     return
   }
+  // -----------------------------
 
   container.innerHTML = pokemons.map(pokemon => `
     <div class="pokemon-card" data-id="${pokemon.id}">
@@ -210,24 +244,38 @@ function setupGlobalListeners() {
   MODALE
 ====================== */
 
-function openModal(index: number) {
+async function openModal(index: number) {
   if (index < 0 || index >= filteredPokemons.length) return
 
   currentPokemonIndex = index
   const pokemon = filteredPokemons[index]
 
-  // 1. Récupération sécurisée de l'évolution précédente
-  const previousEvolution = pokemon.evolutionFrom
-    ? allPokemons.find(pokemon => pokemon.id === pokemon.evolutionFrom)
-    : null;
+  let previousEvolution: Pokemon | null = null
+
+  if (pokemon.evolutionFrom) {
+    previousEvolution =
+      pokedex.find(p => p.id === pokemon.evolutionFrom) ?? null
+
+    // 🔥 fallback : on va le chercher si absent
+    if (!previousEvolution) {
+      try {
+        previousEvolution = await fetchPokemonById(pokemon.evolutionFrom)
+        pokedex.push(previousEvolution)
+      } catch (e) {
+        console.error('Erreur chargement évolution précédente', e)
+      }
+    }
+  }
+
+
 
   // 2. Récupération sécurisée des évolutions suivantes
   // Le changement ici : (p): p is Pokemon => !!p permet de garantir à TypeScript que p n'est pas null
-  const nextEvolutions = pokemon.evolutionTo
-    ? pokemon.evolutionTo
-        .map(id => allPokemons.find(pokemon => pokemon.id === id))
-        .filter((pokemon): pokemon is Pokemon => !!pokemon) 
-    : [];
+  let nextEvolutions = pokedex.filter(
+    p => p.evolutionFrom === pokemon.id
+  )
+
+
 
   const modalContainer = document.querySelector('#modal-container')!;
 
@@ -326,7 +374,7 @@ function openModal(index: number) {
     event.stopPropagation()
     openModal(index - 1)
   })
-
+  
   document.querySelector('.nav-next')?.addEventListener('click', event => {
     event.stopPropagation()
     openModal(index + 1)
@@ -386,6 +434,14 @@ function setupPagination() {
     setTimeout(() => {
         hasMore = newPokemons.length > 0
         allPokemons = newPokemons
+
+        newPokemons.forEach(pokemon => {
+          if (!pokedex.some(pokedex => pokedex.id === pokemon.id)) {
+            pokedex.push(pokemon)
+          }
+        })
+
+
         filteredPokemons = [...allPokemons]
 
         renderPokemonGrid(filteredPokemons)
@@ -396,24 +452,6 @@ function setupPagination() {
 
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }, 200)
-  
-
-
-    hasMore = newPokemons.length > 0
-    allPokemons = newPokemons
-    filteredPokemons = [...allPokemons]
-
-    renderPokemonGrid(filteredPokemons)
-    indicator!.textContent = `Page ${currentPage}`
-
-    //griser le boutton précédent si page 1
-    prevBtn.disabled = currentPage === 1 
-
-    //griser le boutton suivant si il n'y a plus de résultats.
-    nextBtn.disabled = !hasMore || newPokemons.length === 0
-
-    // Remonter en haut de page en douceur
-    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 
