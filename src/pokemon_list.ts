@@ -41,26 +41,65 @@ let hasMore = true
 export async function initPokemonList() {
   renderStaticStructure()
   showLoading()
+  const stopAnimation = animateProgress()
 
   const currentPage = 1
   allPokemons = await fetchPokemons(currentPage)
   filteredPokemons = [...allPokemons]
 
-  const listContainer = document.getElementById('pokemon-list')
-  if (listContainer) listContainer.innerHTML = ''
+  stopAnimation()
 
-  renderPokemonGrid(filteredPokemons)
-  setupGlobalListeners()
-  setupPagination()
+  setTimeout(() => {
+    const listContainer = document.getElementById('pokemon-list')
+    if (listContainer) listContainer.innerHTML = ''
+    renderPokemonGrid(filteredPokemons)
+    setupGlobalListeners()
+    setupPagination()
+  }, 200)
 }
 
 function showLoading() {
   const listContainer = document.getElementById('pokemon-list')
   if (listContainer) {
     listContainer.innerHTML = `
-      <p style="color:#333; font-size:1.5rem; text-align:center; margin-top:50px;">
-        ⚙️ Chargement du Pokédex...
-      </p>`
+      <div class="loading-container">
+        <div class="pokeball-spinner"></div>
+        <div class="loading-text">
+          ⚙️ Chargement du Pokédex... <span id="loading-percent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    `
+  }
+}
+
+// Fonction utilitaire pour animer la barre
+function animateProgress() {
+  const fill = document.getElementById('progress-fill')
+  const percentText = document.getElementById('loading-percent')
+  
+  let width = 0
+  
+  // On utilise un intervalle pour monter "faussement" le pourcentage
+  const interval = setInterval(() => {
+    // Si on est en dessous de 90%, on monte un peu
+    // On ralentit plus on approche de 90% pour simuler un chargement complexe
+    if (width < 90) {
+      const increment = Math.random() * 5 + 1 // Augmente de 1 à 6% aléatoirement
+      width = Math.min(width + increment, 90) // On ne dépasse pas 90% tant que c'est pas fini
+    }
+    
+    if (fill) fill.style.width = `${width}%`
+    if (percentText) percentText.innerText = `${Math.floor(width)}%`
+  }, 100) // Mise à jour toutes les 100ms
+
+  // Cette fonction retourne une fonction de nettoyage qu'on appellera quand le fetch est fini
+  return () => {
+    clearInterval(interval)
+    if (fill) fill.style.width = '100%'
+    if (percentText) percentText.innerText = '100%'
   }
 }
 
@@ -76,7 +115,7 @@ function renderStaticStructure() {
 
     <div id="pokemon-list" class="pokemon-list"></div>
     <div class="pagination">
-      <button id="prev-page">⬅ Précédent</button>
+      <button id="prev-page" disabled>⬅ Précédent</button>
       <span id="page-indicator">Page 1</span>
       <button id="next-page">Suivant ➡</button>
     </div>
@@ -286,8 +325,8 @@ function renderStat(label: string, value: number) {
 
 
 function setupPagination() {
-  const prevBtn = document.getElementById('prev-page')
-  const nextBtn = document.getElementById('next-page')
+  const prevBtn = document.getElementById('prev-page') as HTMLButtonElement
+  const nextBtn = document.getElementById('next-page') as HTMLButtonElement
   const indicator = document.getElementById('page-indicator')
 
 
@@ -307,8 +346,27 @@ function setupPagination() {
 
   async function updatePage() {
     showLoading()
+    const stopAnimation = animateProgress()
 
     const newPokemons = await fetchPokemons(currentPage)
+
+    stopAnimation()
+
+    setTimeout(() => {
+        hasMore = newPokemons.length > 0
+        allPokemons = newPokemons
+        filteredPokemons = [...allPokemons]
+
+        renderPokemonGrid(filteredPokemons)
+        indicator!.textContent = `Page ${currentPage}`
+
+        prevBtn.disabled = currentPage === 1 
+        nextBtn.disabled = !hasMore || newPokemons.length === 0
+
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 200)
+  
+
 
     hasMore = newPokemons.length > 0
     allPokemons = newPokemons
@@ -316,6 +374,15 @@ function setupPagination() {
 
     renderPokemonGrid(filteredPokemons)
     indicator!.textContent = `Page ${currentPage}`
+
+    //griser le boutton précédent si page 1
+    prevBtn.disabled = currentPage === 1 
+
+    //griser le boutton suivant si il n'y a plus de résultats.
+    nextBtn.disabled = !hasMore || newPokemons.length === 0
+
+    // Remonter en haut de page en douceur
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 

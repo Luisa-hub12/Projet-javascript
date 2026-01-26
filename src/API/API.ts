@@ -1,7 +1,7 @@
 import type { Pokemon } from '../pokemon_list' 
 
 export async function fetchPokemons(page : number): Promise<Pokemon[]> {
-  const limit = 20; 
+  const limit = 30; 
   const offset = (page - 1) * limit; 
 
   const listResponse = await fetch(
