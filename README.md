@@ -15,7 +15,7 @@ Les features
 
                     Par abilities ---> en cours
 
-                    Par génération
+                    Par génération 
 
             Fiche de base
                     id ✓

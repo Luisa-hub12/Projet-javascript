@@ -1,4 +1,5 @@
 import { fetchPokemons } from './API/API'
+import { filterPokemonByType } from './API/API'
 
 /* ======================
   TYPES
@@ -36,19 +37,20 @@ let currentPokemonIndex: number | null = null
   INITIALISATION
 ====================== */
 
-export async function initPokemonList() {
-  renderStaticStructure()
-  showLoading()
+export async function initPokemonList() 
+{
+  renderStaticStructure();
+  showLoading();
 
-  const currentPage = 1
-  allPokemons = await fetchPokemons(currentPage)
-  filteredPokemons = [...allPokemons]
+  //const currentPage = 1
+  allPokemons = await fetchPokemons(1);
+  filteredPokemons = [...allPokemons];
 
   const listContainer = document.getElementById('pokemon-list')
   if (listContainer) listContainer.innerHTML = ''
 
-  renderPokemonGrid(filteredPokemons)
-  setupGlobalListeners()
+  renderPokemonGrid(filteredPokemons);
+  setupGlobalListeners();
 }
 
 function showLoading() {
@@ -65,16 +67,32 @@ function showLoading() {
   RENDERING
 ====================== */
 
-function renderStaticStructure() {
+function renderStaticStructure() 
+{
   app.innerHTML = `
     <div class="header-controls">
       <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
     </div>
+      
+    <div class="filter-group">
+        <label>Type</label>
+        <select id="filter-type">
+          <option value="all">Tous</option> <option value="fire">Fire</option>
+          <option value="grass">Grass</option>
+          <option value="water">Water</option>
+          <option value="electric">Electric</option>
+          <option value="poison">Poison</option>
+          <option value="bug">Bug</option>
+          <option value="normal">Normal</option>
+          <option value="flying">Flying</option>
+        </select>
+      </div>
+    </div>
 
-    <div id="pokemon-list" class="pokemon-list"></div>
-    <div id="modal-container"></div>
-  `
+    <div id="pokemon-list" class="pokemon-list"></div> <div id="modal-container"></div>
+  `;
 }
+
 
 function renderPokemonGrid(pokemons: Pokemon[]) {
   const container = document.getElementById('pokemon-list')
@@ -109,22 +127,30 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
   RECHERCHE (IDENTIQUE À L’ORIGINE)
 ====================== */
 
-function setupGlobalListeners() {
-  const searchInput = document.querySelector<HTMLInputElement>('#search')
+function setupGlobalListeners() 
+{
+  const searchInput = document.querySelector<HTMLInputElement>('#search');
+  const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type');
 
-  const handleSearch = () => {
-    const query = searchInput?.value.toLowerCase() || ''
+  const applyFilters = () => 
+    {
+    const query = searchInput?.value.toLowerCase() || '';
+    const selectedType = typeSelect?.value || 'all';
 
-    filteredPokemons = allPokemons.filter(pokemon =>
-      pokemon.name.toLowerCase().includes(query)
-    )
+ 
+    let results = filterPokemonByType(allPokemons, selectedType);
 
-    renderPokemonGrid(filteredPokemons)
-  }
+    results = results.filter(p => p.name.toLowerCase().includes(query));
 
-  searchInput?.addEventListener('input', handleSearch)
+   
+    filteredPokemons = results;
+    renderPokemonGrid(filteredPokemons);
+  };
 
-  setupGlobalKeyboardEvents()
+  searchInput?.addEventListener('input', applyFilters);
+  typeSelect?.addEventListener('change', applyFilters);
+
+  setupGlobalKeyboardEvents();
 }
 
 /* ======================
