@@ -176,7 +176,7 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
         if(typeSelect) typeSelect.value = 'all'
         
         // Reset des données
-        filteredPokemons = [...allPokemons]
+        filteredPokemons = [...pokedex]
         renderPokemonGrid(filteredPokemons)
       })
     }, 0)
@@ -218,7 +218,7 @@ function setupGlobalListeners() {
     const selectedType = typeSelect?.value || 'all'
 
     // 3. On filtre le tableau original 'allPokemons'
-    filteredPokemons = allPokemons.filter(pokemon => {
+    filteredPokemons = pokedex.filter(pokemon => {
       // Condition A : Le nom contient la recherche
       const matchName = pokemon.name.toLowerCase().includes(query)
 
@@ -348,27 +348,29 @@ async function openModal(index: number) {
 
   // Gestion du clic sur les cartes d'évolution
   document.querySelectorAll('.evolution-card').forEach(card => {
-    card.addEventListener('click', () => {
+    card.addEventListener('click', async () => {
       const id = Number(card.getAttribute('data-id'))
       
       // On cherche d'abord dans la liste filtrée
-      let newIndex = filteredPokemons.findIndex(p => p.id === id)
+      let targetPokemon = pokedex.find(p => p.id === id)
 
-      // Si pas trouvé (ex: on a filtré "Pikachu", Raichu n'est pas dans la liste filtrée)
-      // On réinitialise le filtre pour afficher tout le monde
-      if (newIndex === -1) {
-        filteredPokemons = [...allPokemons] // Copie propre
-        renderPokemonGrid(filteredPokemons) // Mise à jour de la grille derrière
-        newIndex = filteredPokemons.findIndex(pokemon => pokemon.id === id)
-        
-        // Petit reset de la barre de recherche pour être cohérent
-        const searchInput = document.querySelector<HTMLInputElement>('#search')
-        if (searchInput) searchInput.value = ''
+      if (!targetPokemon) {
+        try {
+          targetPokemon = await fetchPokemonById(id)
+          pokedex.push(targetPokemon)
+        } catch (e) {
+          console.error('Erreur de chargement évolution', e)
+          return
+        }
       }
+      
 
-      if (newIndex !== -1) openModal(newIndex)
-    })
+    filteredPokemons = [targetPokemon]
+    renderPokemonGrid(filteredPokemons)
+    openModal(0)
   })
+})
+
 
   document.querySelector('.nav-prev')?.addEventListener('click', event => {
     event.stopPropagation()
@@ -441,10 +443,8 @@ function setupPagination() {
           }
         })
 
+        renderPokemonGrid(allPokemons)
 
-        filteredPokemons = [...allPokemons]
-
-        renderPokemonGrid(filteredPokemons)
         indicator!.textContent = `Page ${currentPage}`
 
         prevBtn.disabled = currentPage === 1 
