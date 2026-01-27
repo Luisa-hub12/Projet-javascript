@@ -443,7 +443,9 @@ function setupPagination() {
           }
         })
 
-        renderPokemonGrid(allPokemons)
+        
+        filteredPokemons = [...allPokemons] 
+        renderPokemonGrid(filteredPokemons) 
 
         indicator!.textContent = `Page ${currentPage}`
 
