@@ -362,6 +362,66 @@ body {
     rgba(255,255,255,0) 100%
   );
 }
+
+/* ======================
+   ADD TO TEAM BUTTON
+====================== */
+
+#add-to-team {
+  margin: 16px auto 0;
+  padding: 12px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  color: #fff;
+  background: linear-gradient(135deg, #ff5252, #e53935);
+
+  border: none;
+  border-radius: 999px;
+
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+
+  transition: 
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.2s ease;
+}
+
+/* Hover */
+#add-to-team:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, #ff6b6b, #f44336);
+}
+
+/* Active (click) */
+#add-to-team:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Disabled */
+#add-to-team:disabled {
+  background: linear-gradient(135deg, #9e9e9e, #757575);
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+/* Optional: petit effet "poké" */
+#add-to-team::before {
+  content: '⚔️';
+  font-size: 0.8rem;
+}
+
 /* =========================================
    4. LISTE & CARTES
 ========================================= */
@@ -706,6 +766,107 @@ body {
   .title-pokedex { font-size: 2.5rem; }
   #side-menu { width: 80%; }
 }
+
+
+/* =========================================
+   10. ÉQUIPE POKÉMON (TEAM CREATOR)
+========================================= */
+
+/* Conteneur de l'équipe */
+#team-container {
+  margin: 40px auto;
+  padding: 20px;
+  max-width: 1000px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+/* Titre */
+#team-container h3 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Résumé des types présents */
+.team-types {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+/* Grille de l'équipe */
+.team-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Carte Pokémon dans l'équipe */
+.team-card {
+  width: 150px;
+  background: #fff;
+  border-radius: 15px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.team-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+/* Types dans la carte */
+.team-card .types {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+/* Bouton de suppression */
+.remove-btn {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.remove-btn:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+}
+
+/* Responsive équipe */
+@media (max-width: 768px) {
+  .team-card { width: 120px; }
+  .team-card img { width: 80px; height: 80px; }
+}
+
+@media (max-width: 480px) {
+  .team-card { width: 100%; max-width: 200px; }
+}
+
 
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

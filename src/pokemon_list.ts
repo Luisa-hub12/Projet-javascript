@@ -1,5 +1,7 @@
 import { fetchPokemons } from './API/API'
 import { fetchPokemonById } from './API/API'
+import { handleAddToTeam } from './team/team_controller'
+import { team } from './team/team_store'
 
 
 /* ======================
@@ -13,14 +15,14 @@ export interface Pokemon {
   type: string[]
   abilities: string[]
   stats: {
-    hp: number 
+    hp: number
     attack: number
     defense: number
     speed: number
   }
   poids: number
   taille: number
-  cries?: string 
+  cries?: string
   evolutionFrom?: number
   evolutionTo?: number[]
 }
@@ -89,9 +91,9 @@ function showLoading() {
 function animateProgress() {
   const fill = document.getElementById('progress-fill')
   const percentText = document.getElementById('loading-percent')
-  
+
   let width = 0
-  
+
   // On utilise un intervalle pour monter "faussement" le pourcentage
   const interval = setInterval(() => {
     // Si on est en dessous de 90%, on monte un peu
@@ -100,7 +102,7 @@ function animateProgress() {
       const increment = Math.random() * 5 + 1 // Augmente de 1 à 6% aléatoirement
       width = Math.min(width + increment, 90) // On ne dépasse pas 90% tant que c'est pas fini
     }
-    
+
     if (fill) fill.style.width = `${width}%`
     if (percentText) percentText.innerText = `${Math.floor(width)}%`
   }, 100) // Mise à jour toutes les 100ms
@@ -122,7 +124,7 @@ function renderStaticStructure() {
     <div class="header-controls">
       <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
     </div>
-      
+
     <div class="filter-group">
         <label>Type</label>
         <select id="filter-type">
@@ -164,23 +166,23 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
           🔄 Réinitialiser les filtres
         </button>
       </div>`
-    
+
     // On attache l'événement au bouton "Réinitialiser" juste après l'avoir créé
     setTimeout(() => {
       document.getElementById('btn-reset')?.addEventListener('click', () => {
         const searchInput = document.querySelector<HTMLInputElement>('#search')
         const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
-        
+
         // Reset des inputs
         if(searchInput) searchInput.value = ''
         if(typeSelect) typeSelect.value = 'all'
-        
+
         // Reset des données
         filteredPokemons = [...pokedex]
         renderPokemonGrid(filteredPokemons)
       })
     }, 0)
-    
+
     return
   }
   // -----------------------------
@@ -205,29 +207,50 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
 /* ======================
   RECHERCHE (IDENTIQUE À L’ORIGINE)
 ====================== */
+
+
+/* « Cette fonction centralise les écouteurs d’événements et 
+combine une recherche textuelle et un filtre par type, avec un fallback API
+ si le Pokémon recherché n’est pas encore chargé. » */
+ 
 function setupGlobalListeners() {
   const searchInput = document.querySelector<HTMLInputElement>('#search')
   const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
 
   // Cette fonction combine les deux filtres
-  const applyFilters = () => {
+  const applyFilters = async () => {
     // 1. On récupère la valeur du texte (minuscule)
     const query = searchInput?.value.toLowerCase() || ''
-    
+
     // 2. On récupère la valeur du select
     const selectedType = typeSelect?.value || 'all'
 
-    // 3. On filtre le tableau original 'allPokemons'
-    filteredPokemons = pokedex.filter(pokemon => {
-      // Condition A : Le nom contient la recherche
-      const matchName = pokemon.name.toLowerCase().includes(query)
+      let results = pokedex.filter(pokemon => {
+    const matchName = pokemon.name.toLowerCase().includes(query)
+    const matchType =
+      selectedType === 'all' || pokemon.type.includes(selectedType)
 
-      // Condition B : Le type est 'all' OU le pokemon possède ce type
-      const matchType = selectedType === 'all' || pokemon.type.includes(selectedType)
+    return matchName && matchType
+  })
 
-      // IMPORTANT : On retourne true seulement si A ET B sont vrais
-      return matchName && matchType
-    })
+
+  if (results.length === 0 && query.length > 0 && selectedType === 'all') {
+    try {
+      const fetchedPokemon = await fetchPokemonById(query as any)
+
+      // On évite les doublons
+      if (!pokedex.some(p => p.id === fetchedPokemon.id)) {
+        pokedex.push(fetchedPokemon)
+      }
+
+      results = [fetchedPokemon]
+    } catch {
+      // Pokémon inexistant → results reste vide
+    }
+  }
+
+  // 3️⃣ Mise à jour de l’affichage
+  filteredPokemons = results
 
     // 4. On redessine la grille avec le résultat combiné
     renderPokemonGrid(filteredPokemons)
@@ -281,7 +304,7 @@ async function openModal(index: number) {
 
   modalContainer.innerHTML = `
     <div class="modal-overlay" id="overlay-bg">
-      
+
       ${index > 0 ? `<button class="nav-arrow nav-prev">❮</button>` : ''}
 
       <div class="modal-content type-${pokemon.type[0]}">
@@ -312,7 +335,7 @@ async function openModal(index: number) {
         ${pokemon.cries ? `<button id="cry-btn">🔊 Cri</button>` : ''}
 
         <div class="evolutions">
-          
+
           ${previousEvolution ? `
             <div class="evolution-card" data-id="${previousEvolution.id}">
               <span class="evo-badge badge-prev">AVANT</span>
@@ -328,11 +351,34 @@ async function openModal(index: number) {
             </div>`).join('')}
 
         </div>
+        <button id="add-to-team">➕ Ajouter à l’équipe</button>
         </div>
 
-      ${index < filteredPokemons.length - 1 ? `<button class="nav-arrow nav-next">❯</button>` : ''} 
+      ${index < filteredPokemons.length - 1 ? `<button class="nav-arrow nav-next">❯</button>` : ''}
     </div>
   `
+
+
+  const btn = document.querySelector('#add-to-team') as HTMLButtonElement
+
+  if (btn) {
+    const alreadyInTeam = team.pokemons.some(p => p.id === pokemon.id)
+
+    btn.disabled = alreadyInTeam
+  if (alreadyInTeam) {
+    btn.textContent = '✔ Déjà dans l’équipe'
+  }
+
+  btn.addEventListener('click', () => {
+    handleAddToTeam(pokemon)
+    btn.disabled = true
+    btn.textContent = '✔ Ajouté à l’équipe'
+  })
+}
+
+
+
+
 
   /* --- RESTE DE LA LOGIQUE (CLICK, FERMETURE...) --- */
   
@@ -350,7 +396,7 @@ async function openModal(index: number) {
   document.querySelectorAll('.evolution-card').forEach(card => {
     card.addEventListener('click', async () => {
       const id = Number(card.getAttribute('data-id'))
-      
+
       // On cherche d'abord dans la liste filtrée
       let targetPokemon = pokedex.find(p => p.id === id)
 
@@ -462,11 +508,16 @@ function setupPagination() {
   EVENTS
 ====================== */
 
+// rend les cartes Pokémon cliquable.
+
+/* setupCardsClick = souris 🖱️
+setupGlobalKeyboardEvents = clavier ⌨️ */
+
 function setupCardsClick() {
   document.querySelectorAll('.pokemon-card').forEach(card => {
     card.addEventListener('click', () => {
-      const id = Number(card.getAttribute('data-id'))
-      const index = filteredPokemons.findIndex(pokemon => pokemon.id === id)
+      const id = Number(card.getAttribute('data-id')) // Récupère l’ID du Pokémon stocké dans le HTML : data-id="25" → id = 25
+      const index = filteredPokemons.findIndex(pokemon => pokemon.id === id) // cherche ou se trouve le pokemon dans la liste
       if (index !== -1) openModal(index)
     })
   })

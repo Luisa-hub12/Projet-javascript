@@ -42,8 +42,8 @@ function setupMenuLogic() {
   const menuBtn = document.querySelector('#menu-trigger')!
   const sideMenu = document.querySelector('#side-menu')!
 
-  menuBtn.addEventListener('click', (e) => {
-    e.stopPropagation()
+  menuBtn.addEventListener('click', (event) => {
+    event.stopPropagation()
     sideMenu.classList.toggle('side-menu-visible')
   })
 
