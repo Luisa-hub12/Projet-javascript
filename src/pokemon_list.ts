@@ -5,11 +5,12 @@ import { team } from './team/team_store'
 
 
 
+
 /* ======================
   TYPES
 ====================== */
 
-export interface Pokemon { // bunları model.ts isimli başka bir dosyaya koy
+export interface Pokemon { // modal.ts e gidecek
   id: number
   name: string
   image: string
@@ -48,7 +49,8 @@ let hasMore = true
   INITIALISATION
 ====================== */
 
-export async function initPokemonList() {
+export async function initPokemonList() 
+{
   renderStaticStructure()
   showLoading()
   const stopAnimation = animateProgress()
@@ -105,7 +107,6 @@ function animateProgress() {
       const increment = Math.random() * 5 + 1 // Augmente de 1 à 6% aléatoirement
       width = Math.min(width + increment, 90) // On ne dépasse pas 90% tant que c'est pas fini
     }
-
     if (fill) fill.style.width = `${width}%`
     if (percentText) percentText.innerText = `${Math.floor(width)}%`
   }, 100) // Mise à jour toutes les 100ms
@@ -130,7 +131,6 @@ function renderStaticStructure()
     </div>
 
     <div class="filter-group">
-        <label>Type</label>
         <select id="filter-type">
           <option value="all">Tous</option> <option value="fire">Fire</option>
           <option value="grass">Grass</option>
@@ -140,16 +140,23 @@ function renderStaticStructure()
           <option value="bug">Bug</option>
           <option value="normal">Normal</option>
           <option value="flying">Flying</option>
+          <option value="ground">Ground</option>
+          <option value="ice">Ice</option>
         </select>
       </div>
     </div>
 
-
     <div id="pokemon-list" class="pokemon-list"></div>
     <div class="pagination">
       <button id="prev-page" disabled>⬅ Précédent</button>
-      <span id="page-indicator">Page 1</span>
       <button id="next-page">Suivant ➡</button>
+
+      <div class="page-jump">
+        <span>Page</span>
+        <input type="number" id="page-input" value="1" min="1" max="46" />
+        <span>sur <strong id="total-pages">46</strong></span>
+      </div>
+    
       </div>
     <div id="modal-container"></div>
   `
@@ -454,6 +461,8 @@ function renderStat(label: string, value: number) {
 }
 
 
+//burdan silmeye
+//Buraya kadar silinebilir
 
 function setupPagination() {
   const prevBtn = document.getElementById('prev-page') as HTMLButtonElement
