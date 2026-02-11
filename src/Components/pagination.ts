@@ -21,21 +21,23 @@ export function setupPagination(onPageChange: (requestedPage: number) => void)
     //Le button de suivant 
     nextBtn.addEventListener('click', () => 
      {
-        if (currentPage < maxPage) {
+        if (currentPage < maxPage) 
+            {
             currentPage++;
             updateScreen();
             onPageChange(currentPage); 
-        }
+            }
     });
 
     // Le button de précédent
     prevBtn.addEventListener('click', () => 
     {
-        if (currentPage > 1) {
+        if (currentPage > 1) 
+            {
             currentPage--;
             updateScreen();
             onPageChange(currentPage); 
-        }
+            }
     });
 
     updateScreen();

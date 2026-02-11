@@ -72,16 +72,17 @@ async function loadPokemonData(id: number): Promise<Pokemon> {
 
 // RECERCHE AVANCEE/FILTRE(TYPE)
 
-export function filterPokemonByType (allPokemons:Pokemon[], choice: string)
-{
-  console.log("Selected Type:", choice); 
-
-  if (!choice || choice ==="all")
+export function filterPokemonByType(allPokemons: Pokemon[], choice: string): Pokemon[] 
   {
-      return  allPokemons
-  }
-  return allPokemons.filter(pokemon => 
-    pokemon.type.includes(choice.toLowerCase())
-  );
-}
+  if (allPokemons.length === 0 || choice === "" || choice === "all") //Eğer listenin uzunluğu 0 ise, demek ki elimizde hiç Pokémon yok. Bu durumda kullanıcıya "Üzgünüz, Pokémon bulunamadı" mesajı gösteriyoruz.
+    {
+    return allPokemons;
+    }
+  const filteredList = allPokemons.filter((pokemon) => 
+    {
+    const hasType = pokemon.type.includes(choice);
+    return hasType;
+    });
 
+  return filteredList;
+}

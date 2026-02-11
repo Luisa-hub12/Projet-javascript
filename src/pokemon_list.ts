@@ -2,7 +2,7 @@ import { fetchPokemons } from './API/API'
 import { fetchPokemonById } from './API/API'
 import { handleAddToTeam } from './team/team_controller'
 import { team } from './team/team_store'
-
+import { setupPagination } from './Components/pagination'
 
 
 
@@ -71,7 +71,6 @@ export async function initPokemonList()
     if (listContainer) listContainer.innerHTML = ''
     renderPokemonGrid(filteredPokemons)
     setupGlobalListeners()
-    setupPagination()
   }, 200)
 }
 
@@ -198,6 +197,8 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
   }
   // -----------------------------
 
+
+  // Affiche les cartes de HTML sur l'écran 
   container.innerHTML = pokemons.map(pokemon => `
     <div class="pokemon-card" data-id="${pokemon.id}">
       <img src="${pokemon.image}" loading="lazy" />
@@ -260,7 +261,7 @@ function setupGlobalListeners() {
     }
   }
 
-  // 3️⃣ Mise à jour de l’affichage
+  // Mise à jour de l’affichage
   filteredPokemons = results
 
     // 4. On redessine la grille avec le résultat combiné
@@ -290,7 +291,7 @@ async function openModal(index: number) {
     previousEvolution =
       pokedex.find(p => p.id === pokemon.evolutionFrom) ?? null
 
-    // 🔥 fallback : on va le chercher si absent
+    // fallback : on va le chercher si absent
     if (!previousEvolution) {
       try {
         previousEvolution = await fetchPokemonById(pokemon.evolutionFrom)
@@ -464,57 +465,6 @@ function renderStat(label: string, value: number) {
 //burdan silmeye
 //Buraya kadar silinebilir
 
-function setupPagination() {
-  const prevBtn = document.getElementById('prev-page') as HTMLButtonElement
-  const nextBtn = document.getElementById('next-page') as HTMLButtonElement
-  const indicator = document.getElementById('page-indicator')
-
-
-  if (!prevBtn || !nextBtn || !indicator) return
-
-  prevBtn.addEventListener('click', async () => {
-    if (currentPage === 1) return
-    currentPage--
-    await updatePage()
-  })
-
-  nextBtn.addEventListener('click', async () => {
-    if (!hasMore) return
-    currentPage++
-    await updatePage()
-  })
-
-  async function updatePage() {
-    showLoading()
-    const stopAnimation = animateProgress()
-
-    const newPokemons = await fetchPokemons(currentPage)
-
-    stopAnimation()
-
-    setTimeout(() => {
-        hasMore = newPokemons.length > 0
-        allPokemons = newPokemons
-
-        newPokemons.forEach(pokemon => {
-          if (!pokedex.some(pokedex => pokedex.id === pokemon.id)) {
-            pokedex.push(pokemon)
-          }
-        })
-
-        
-        filteredPokemons = [...allPokemons] 
-        renderPokemonGrid(filteredPokemons) 
-
-        indicator!.textContent = `Page ${currentPage}`
-
-        prevBtn.disabled = currentPage === 1 
-        nextBtn.disabled = !hasMore || newPokemons.length === 0
-
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-    }, 200)
-  }
-}
 
 
 /* ======================
