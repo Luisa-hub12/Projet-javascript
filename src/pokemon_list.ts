@@ -1,14 +1,21 @@
 import { fetchPokemons } from './API/API'
 import { fetchPokemonById } from './API/API'
+<<<<<<< HEAD
 import { handleAddToTeam } from './team/gestion'
 import { team } from './team/size'
+=======
+import { handleAddToTeam } from './team/team_controller'
+import { team } from './team/team_store'
+import { setupPagination } from './Components/pagination'
+
+>>>>>>> 748b8b90cd988f8e416bc1a9b6aea3aa75d74f6c
 
 
 /* ======================
   TYPES
 ====================== */
 
-export interface Pokemon {
+export interface Pokemon { // modal.ts e gidecek
   id: number
   name: string
   image: string
@@ -48,11 +55,14 @@ let currentPokemonIndex: number | null = null
 
 let currentPage = 1
 let hasMore = true
+
+
 /* ======================
   INITIALISATION
 ====================== */
 
-export async function initPokemonList() {
+export async function initPokemonList() 
+{
   renderStaticStructure()
   showLoading()
   const stopAnimation = animateProgress()
@@ -73,12 +83,11 @@ export async function initPokemonList() {
     if (listContainer) listContainer.innerHTML = ''
     renderPokemonGrid(filteredPokemons)
     setupGlobalListeners()
-    setupPagination()
   }, 200)
 }
 
 function showLoading() {
-  const listContainer = document.getElementById('pokemon-list')
+  const listContainer = document.getElementById('pokemon-list');
   if (listContainer) {
     listContainer.innerHTML = `
       <div class="loading-container">
@@ -109,7 +118,6 @@ function animateProgress() {
       const increment = Math.random() * 5 + 1 // Augmente de 1 à 6% aléatoirement
       width = Math.min(width + increment, 90) // On ne dépasse pas 90% tant que c'est pas fini
     }
-
     if (fill) fill.style.width = `${width}%`
     if (percentText) percentText.innerText = `${Math.floor(width)}%`
   }, 100) // Mise à jour toutes les 100ms
@@ -126,14 +134,14 @@ function animateProgress() {
   RENDERING
 ====================== */
 
-function renderStaticStructure() {
+function renderStaticStructure() 
+{
   app.innerHTML = `
     <div class="header-controls">
       <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
     </div>
 
     <div class="filter-group">
-        <label>Type</label>
         <select id="filter-type">
           <option value="all">Tous</option> <option value="fire">Fire</option>
           <option value="grass">Grass</option>
@@ -143,16 +151,23 @@ function renderStaticStructure() {
           <option value="bug">Bug</option>
           <option value="normal">Normal</option>
           <option value="flying">Flying</option>
+          <option value="ground">Ground</option>
+          <option value="ice">Ice</option>
         </select>
       </div>
     </div>
 
-
     <div id="pokemon-list" class="pokemon-list"></div>
     <div class="pagination">
       <button id="prev-page" disabled>⬅ Précédent</button>
-      <span id="page-indicator">Page 1</span>
       <button id="next-page">Suivant ➡</button>
+
+      <div class="page-jump">
+        <span>Page</span>
+        <input type="number" id="page-input" value="1" min="1" max="46" />
+        <span>sur <strong id="total-pages">46</strong></span>
+      </div>
+    
       </div>
     <div id="modal-container"></div>
   `
@@ -194,6 +209,8 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
   }
   // -----------------------------
 
+
+  // Affiche les cartes de HTML sur l'écran 
   container.innerHTML = pokemons.map(pokemon => `
     <div class="pokemon-card" data-id="${pokemon.id}">
       <img src="${pokemon.image}" loading="lazy" />
@@ -256,7 +273,7 @@ function setupGlobalListeners() {
     }
   }
 
-  // 3️⃣ Mise à jour de l’affichage
+  // Mise à jour de l’affichage
   filteredPokemons = results
 
     // 4. On redessine la grille avec le résultat combiné
@@ -286,7 +303,7 @@ async function openModal(index: number) {
     previousEvolution =
       pokedex.find(p => p.id === pokemon.evolutionFrom) ?? null
 
-    // 🔥 fallback : on va le chercher si absent
+    // fallback : on va le chercher si absent
     if (!previousEvolution) {
       try {
         previousEvolution = await fetchPokemonById(pokemon.evolutionFrom)
@@ -457,58 +474,9 @@ function renderStat(label: string, value: number) {
 }
 
 
+//burdan silmeye
+//Buraya kadar silinebilir
 
-function setupPagination() {
-  const prevBtn = document.getElementById('prev-page') as HTMLButtonElement
-  const nextBtn = document.getElementById('next-page') as HTMLButtonElement
-  const indicator = document.getElementById('page-indicator')
-
-
-  if (!prevBtn || !nextBtn || !indicator) return
-
-  prevBtn.addEventListener('click', async () => {
-    if (currentPage === 1) return
-    currentPage--
-    await updatePage()
-  })
-
-  nextBtn.addEventListener('click', async () => {
-    if (!hasMore) return
-    currentPage++
-    await updatePage()
-  })
-
-  async function updatePage() {
-    showLoading()
-    const stopAnimation = animateProgress()
-
-    const newPokemons = await fetchPokemons(currentPage)
-
-    stopAnimation()
-
-    setTimeout(() => {
-        hasMore = newPokemons.length > 0
-        allPokemons = newPokemons
-
-        newPokemons.forEach(pokemon => {
-          if (!pokedex.some(pokedex => pokedex.id === pokemon.id)) {
-            pokedex.push(pokemon)
-          }
-        })
-
-        
-        filteredPokemons = [...allPokemons] 
-        renderPokemonGrid(filteredPokemons) 
-
-        indicator!.textContent = `Page ${currentPage}`
-
-        prevBtn.disabled = currentPage === 1 
-        nextBtn.disabled = !hasMore || newPokemons.length === 0
-
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-    }, 200)
-  }
-}
 
 
 /* ======================
