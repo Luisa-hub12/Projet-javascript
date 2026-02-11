@@ -1,7 +1,7 @@
 import { fetchPokemons } from './API/API'
 import { fetchPokemonById } from './API/API'
-import { handleAddToTeam } from './team/team_controller'
-import { team } from './team/team_store'
+import { handleAddToTeam } from './team/gestion'
+import { team } from './team/size'
 
 
 /* ======================
@@ -25,7 +25,14 @@ export interface Pokemon {
   cries?: string
   evolutionFrom?: number
   evolutionTo?: number[]
+  moves: {
+  name: string
+  type: string
+  power: number | null
+}[]
 }
+
+// Le ? veut dire propriété optionnelle Autrement dit : cette propriété peut exister… ou pas
 
 /* ======================
   VARIABLES GLOBALES

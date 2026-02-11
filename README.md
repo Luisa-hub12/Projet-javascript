@@ -8,14 +8,14 @@ Les features
             - Par ordre alphabétique ✓
             Recherche par texte sur le nom ✓
 
-            Recherche avancé  (On rajoute u bar de filtre pour la recherche avencée)
-                Par type ---> en cours
+            Recherche avancé  (On rajoute u bar de filtre pour la recherche avancée)
+                Par type ---> en cours --> Ilay
 
-                    Par id ---> en cours
+                    Par id ---> en cours --> Ilay
 
-                    Par abilities ---> en cours
+                    Par abilities ---> en cours --> Ilay
 
-                    Par génération
+                    Par génération --> Ilay
 
             Fiche de base
                     id ✓

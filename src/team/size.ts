@@ -1,5 +1,5 @@
 import type { Pokemon } from "../pokemon_list";
-import type { Team, TeamPokemon } from "./team_types";
+import type { Team, TeamPokemon } from "./interface";
 
 const MAX_TEAM_SIZE = 6
 
@@ -17,7 +17,7 @@ export function addToTeam(pokemon: Pokemon): boolean {
         name: pokemon.name,
         image: pokemon.image,
         types: pokemon.type,
-        moves: []
+        moves: pokemon.moves
     }
 
     team.pokemons.push(teamPokemon)

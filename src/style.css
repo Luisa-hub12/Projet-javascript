@@ -2,7 +2,7 @@
    1. VARIABLES & RESET
 ========================================= */
 :root {
-  --pokedex-red: #6ecaee;
+  --pokedex-red: #1f8938;
   --pokedex-dark: #8b0000;
   --text-main: #2c3e50;
   --text-white: #ffffff;
@@ -435,7 +435,7 @@ body {
 }
 
 .pokemon-card {
-  background: #ff5c67;
+  background: #c3ff5c;
   border-radius: 20px;
   padding: 20px;
   text-align: center;

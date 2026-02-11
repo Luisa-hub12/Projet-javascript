@@ -1,6 +1,6 @@
 import type { Pokemon } from "../pokemon_list";
-import { addToTeam, removeFromTeam } from "./team_store";
-import { renderTeam } from "./team_ui";
+import { addToTeam, removeFromTeam } from "./size";
+import { renderTeam } from "./choice";
 
 export function handleAddToTeam(pokemon: Pokemon) {
     const success = addToTeam(pokemon)

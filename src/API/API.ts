@@ -47,6 +47,22 @@ async function loadPokemonData(id: number): Promise<Pokemon> {
     evolutionFromId = parseInt(urlParts[urlParts.length - 2])
   }
 
+  //  On prend 4 attaques max
+  const selectedMoves = data.moves.slice(0, 4)
+
+  const moves = await Promise.all(
+    selectedMoves.map(async (moveInfo: any) => {
+      const moveResponse = await fetch(moveInfo.move.url)
+      const moveData = await moveResponse.json()
+
+      return {
+        name: moveData.name,
+        type: moveData.type.name,
+        power: moveData.power
+      }
+    })
+  )
+
   return {
     id: data.id,
     name: data.name,
@@ -64,9 +80,9 @@ async function loadPokemonData(id: number): Promise<Pokemon> {
     poids: data.weight / 10,
     taille: data.height / 10,
     cries: data.cries?.latest,
-
     evolutionFrom: evolutionFromId,
-    evolutionTo: []
+    evolutionTo: [],
+    moves // on injecte les attaques ici
   }
 }
 
