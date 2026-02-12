@@ -1,4 +1,4 @@
-import { team, getTeamTypes } from "./size";
+import { team, getTeamTypes, getTeamWeaknesses } from "./size";
 import { handleRemoveFromTeam } from "./gestion";
 
 export function renderTeam() {
@@ -11,6 +11,7 @@ export function renderTeam() {
     }
 
     const types = getTeamTypes();
+    const weaknesses = getTeamWeaknesses();
 
     container.innerHTML = `
         <h3>🧢 Équipe Pokémon</h3>
@@ -20,6 +21,13 @@ export function renderTeam() {
             ${types.map(t => 
                 `<span class="type-badge type-${t}">${t}</span>`
             ).join(' ')}
+        </div>
+
+        <div class="team-weaknesses">
+            <strong>Faiblesses :</strong>
+            ${weaknesses.length > 0 ? weaknesses.map(t => 
+                `<span class="type-badge type-${t}">${t}</span>`
+            ).join(' ') : '<span>Aucune</span>'}
         </div>
 
         <div class="team-grid">
@@ -62,6 +70,7 @@ export function renderTeam() {
         btn.addEventListener('click', () => {
             const id = Number(btn.getAttribute('data-id'));
             handleRemoveFromTeam(id);
+            renderTeam(); // rafraîchit après suppression
         });
     });
 }

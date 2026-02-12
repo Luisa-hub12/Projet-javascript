@@ -8,19 +8,14 @@ Les features
             - Par ordre alphabétique ✓
             Recherche par texte sur le nom ✓
 
-<<<<<<< HEAD
-            Recherche avancé  (On rajoute u bar de filtre pour la recherche avancée)
-                Par type ---> en cours --> Ilay
-=======
             Recherche avancé  (On rajoute u bar de filtre pour la recherche avencée)
                 Par type ✓
->>>>>>> 748b8b90cd988f8e416bc1a9b6aea3aa75d74f6c
 
-                    Par id ---> en cours --> Ilay
+                    Par id
 
-                    Par abilities ---> en cours --> Ilay
+                    Par abilities
 
-                    Par génération --> Ilay
+                    Par génération
 
             Fiche de base
                     id ✓

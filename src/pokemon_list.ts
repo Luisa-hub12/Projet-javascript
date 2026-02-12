@@ -1,14 +1,10 @@
 import { fetchPokemons } from './API/API'
 import { fetchPokemonById } from './API/API'
-<<<<<<< HEAD
 import { handleAddToTeam } from './team/gestion'
 import { team } from './team/size'
-=======
-import { handleAddToTeam } from './team/team_controller'
-import { team } from './team/team_store'
-import { setupPagination } from './Components/pagination'
+import { renderTeam } from './team/choice'
+import { loadTeam } from './team/size'
 
->>>>>>> 748b8b90cd988f8e416bc1a9b6aea3aa75d74f6c
 
 
 /* ======================
@@ -63,7 +59,13 @@ let hasMore = true
 
 export async function initPokemonList() 
 {
+  loadTeam();
+
   renderStaticStructure()
+  document.getElementById('btn-show-team')?.addEventListener('click', () => {
+    renderTeam();
+});
+
   showLoading()
   const stopAnimation = animateProgress()
 
@@ -83,6 +85,7 @@ export async function initPokemonList()
     if (listContainer) listContainer.innerHTML = ''
     renderPokemonGrid(filteredPokemons)
     setupGlobalListeners()
+    setupPagination()
   }, 200)
 }
 
@@ -156,6 +159,9 @@ function renderStaticStructure()
         </select>
       </div>
     </div>
+
+    <button id="btn-show-team">🧢 Voir mon équipe</button>
+    <div id="team-container"></div>
 
     <div id="pokemon-list" class="pokemon-list"></div>
     <div class="pagination">
@@ -258,20 +264,27 @@ function setupGlobalListeners() {
   })
 
 
-  if (results.length === 0 && query.length > 0 && selectedType === 'all') {
-    try {
-      const fetchedPokemon = await fetchPokemonById(query as any)
 
+if (results.length === 0 && query.length > 0 && selectedType === 'all') {
+  try {
+    const id = Number(query)
+    let fetchedPokemon: Pokemon | null = null
+
+    if (!isNaN(id)) {
+      fetchedPokemon = await fetchPokemonById(id)
+    }
+
+    if (fetchedPokemon) {
       // On évite les doublons
-      if (!pokedex.some(p => p.id === fetchedPokemon.id)) {
+      if (!pokedex.some(p => p.id === fetchedPokemon!.id)) {
         pokedex.push(fetchedPokemon)
       }
-
       results = [fetchedPokemon]
-    } catch {
-      // Pokémon inexistant → results reste vide
     }
+  } catch {
+    // Pokémon inexistant → results reste vide
   }
+}
 
   // Mise à jour de l’affichage
   filteredPokemons = results
@@ -487,6 +500,53 @@ function renderStat(label: string, value: number) {
 
 /* setupCardsClick = souris 🖱️
 setupGlobalKeyboardEvents = clavier ⌨️ */
+
+function setupPagination() {
+  const prevBtn = document.getElementById('prev-page') as HTMLButtonElement
+  const nextBtn = document.getElementById('next-page') as HTMLButtonElement
+
+  if (!prevBtn || !nextBtn) return
+
+  prevBtn.addEventListener('click', async () => {
+    if (currentPage === 1) return
+    currentPage--
+    await updatePage()
+  })
+
+  nextBtn.addEventListener('click', async () => {
+    if (!hasMore) return
+    currentPage++
+    await updatePage()
+  })
+
+  async function updatePage() {
+    showLoading()
+    const stopAnimation = animateProgress()
+
+    const newPokemons = await fetchPokemons(currentPage)
+
+    stopAnimation()
+
+    setTimeout(() => {
+      hasMore = newPokemons.length > 0
+      allPokemons = newPokemons
+
+      newPokemons.forEach(pokemon => {
+        if (!pokedex.some(p => p.id === pokemon.id)) {
+          pokedex.push(pokemon)
+        }
+      })
+
+      filteredPokemons = [...allPokemons]
+      renderPokemonGrid(filteredPokemons)
+
+      prevBtn.disabled = currentPage === 1
+      nextBtn.disabled = !hasMore
+
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 200)
+  }
+}
 
 function setupCardsClick() {
   document.querySelectorAll('.pokemon-card').forEach(card => {
