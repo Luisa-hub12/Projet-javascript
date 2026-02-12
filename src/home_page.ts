@@ -59,3 +59,4 @@ function setupMenuLogic() {
     .addEventListener('click', onContinue)
 }
 
+// button se deconnecter - se connecter-
