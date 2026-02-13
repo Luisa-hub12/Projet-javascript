@@ -11,11 +11,11 @@ Les features
             Recherche avancé  (On rajoute u bar de filtre pour la recherche avencée)
                 Par type ✓
 
-                    Par id
+                    Par id ✓
 
-                    Par abilities
+                    Par abilities ✓
 
-                    Par génération
+                    Par génération ✓
 
             Fiche de base
                     id ✓
