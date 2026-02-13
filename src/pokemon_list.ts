@@ -115,29 +115,41 @@ function animateProgress() {
   }
 }
 
-// ======================
-// RENDERING
-// ======================
-function renderStaticStructure() {
+/* ======================
+  RENDERING
+====================== */
+
+function renderStaticStructure()  
+{
   app.innerHTML = `
     <div class="header-controls">
-      <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
+      <input id="search" type="text" placeholder="🔎 Chercher un Pokémon par Nom ou ID..." />
     </div>
 
     <div class="filter-group">
-      <select id="filter-type">
-        <option value="all">Tous</option>
-        <option value="fire">Fire</option>
-        <option value="grass">Grass</option>
-        <option value="water">Water</option>
-        <option value="electric">Electric</option>
-        <option value="poison">Poison</option>
-        <option value="bug">Bug</option>
-        <option value="normal">Normal</option>
-        <option value="flying">Flying</option>
-        <option value="ground">Ground</option>
-        <option value="ice">Ice</option>
-      </select>
+        <select id="filter-type">
+          <option value="all">Tous les Types</option>
+          <option value="fire">Fire</option>
+          <option value="grass">Grass</option>
+          <option value="water">Water</option>
+          <option value="electric">Electric</option>
+          <option value="poison">Poison</option>
+          <option value="bug">Bug</option>
+          <option value="normal">Normal</option>
+          <option value="flying">Flying</option>
+          <option value="ground">Ground</option>
+          <option value="ice">Ice</option>
+        </select>
+
+        <input id="filter-ability" type="text" placeholder="🪄 Par Capacité (ex: static)..." />
+
+        <select id="filter-generation">
+          <option value="all">Toutes Générations</option>
+          <option value="1">Gen 1 (1-151)</option>
+          <option value="2">Gen 2 (152-251)</option>
+          <option value="3">Gen 3 (252-386)</option>
+          <option value="4">Gen 4 (387-493)</option>
+        </select>
     </div>
 
     <button id="btn-show-team">🧢 Mon équipe</button>
@@ -156,7 +168,7 @@ function renderStaticStructure() {
     </div>
 
     <div id="pokemon-list" class="pokemon-list"></div>
-
+    
     <div class="pagination">
       <button id="prev-page" disabled>⬅ Précédent</button>
       <button id="next-page">Suivant ➡</button>
@@ -166,12 +178,12 @@ function renderStaticStructure() {
         <span>sur <strong id="total-pages">46</strong></span>
       </div>
     </div>
-
     <div id="modal-container"></div>
   `
 }
 
-function renderPokemonGrid(pokemons: Pokemon[]) {
+function renderPokemonGrid(pokemons: Pokemon[]) 
+{
   const container = document.getElementById('pokemon-list')
   if (!container) return
 
@@ -184,17 +196,26 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
         <button id="btn-reset" class="btn-reset">🔄 Réinitialiser les filtres</button>
       </div>`
     setTimeout(() => {
-      document.getElementById('btn-reset')?.addEventListener('click', () => {
-        const searchInput = document.querySelector<HTMLInputElement>('#search')
-        const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
-        if (searchInput) searchInput.value = ''
-        if (typeSelect) typeSelect.value = 'all'
+      document.getElementById('btn-reset')?.addEventListener('click', () =>
+         {
+            const searchInput = document.querySelector<HTMLInputElement>('#search')
+            const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
+            const abilityInput = document.querySelector<HTMLInputElement>('#filter-ability') // EKLE
+            const genSelect = document.querySelector<HTMLSelectElement>('#filter-generation') // EKLE
+
+            if(searchInput) searchInput.value = ''
+            if(typeSelect) typeSelect.value = 'all'
+            if(abilityInput) abilityInput.value = ''
+            if(genSelect) genSelect.value = 'all'     
+        // Reset des données
         filteredPokemons = [...pokedex]
         renderPokemonGrid(filteredPokemons)
       })
     }, 0)
     return
   }
+
+
 
   container.innerHTML = pokemons.map(pokemon => `
     <div class="pokemon-card" data-id="${pokemon.id}">
@@ -209,41 +230,75 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
   setupCardsClick()
 }
 
-// ======================
-// RECHERCHE / FILTRAGE
-// ======================
-function setupGlobalListeners() {
+/* ======================
+  RECHERCHE (IDENTIQUE À L’ORIGINE)
+====================== */
+
+
+function setupGlobalListeners()
+ {
   const searchInput = document.querySelector<HTMLInputElement>('#search')
   const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
+  const abilityInput = document.querySelector<HTMLInputElement>('#filter-ability')
+  const genSelect = document.querySelector<HTMLSelectElement>('#filter-generation')
 
-  const applyFilters = async () => {
+  const applyFilters = async () => 
+    {
     const query = searchInput?.value.toLowerCase() || ''
     const selectedType = typeSelect?.value || 'all'
+    const abilityQuery = abilityInput?.value.toLowerCase() || ''
+    const selectedGen = genSelect?.value || 'all'
 
-    let results = pokedex.filter(p => (p.name.toLowerCase().includes(query)) && (selectedType === 'all' || p.type.includes(selectedType)))
+    // FILTRAGE LOCAL
+    let results = pokedex.filter(pokemon => 
+      {
+      // Filtre Nom ou ID exact
+      const matchNameOrId = pokemon.name.toLowerCase().includes(query) || 
+                            pokemon.id.toString() === query
 
-    if (results.length === 0 && query.length > 0 && selectedType === 'all') {
-      const id = Number(query)
-      if (!isNaN(id)) {
-        try {
-          const fetchedPokemon = await fetchPokemonById(id)
-          if (fetchedPokemon && !pokedex.some(p => p.id === fetchedPokemon.id)) pokedex.push(fetchedPokemon)
-          if (fetchedPokemon) results = [fetchedPokemon]
-        } catch {}
-      }
+      // Filtre Type
+      const matchType = selectedType === 'all' || pokemon.type.includes(selectedType)
+
+      // Filtre Capacité (Abilities)
+      const matchAbility = abilityQuery === '' || 
+                           pokemon.abilities.some(a => a.toLowerCase().includes(abilityQuery))
+
+      // Filtre Génération
+      let matchGen = true
+      if (selectedGen === '1') matchGen = pokemon.id >= 1 && pokemon.id <= 151
+      else if (selectedGen === '2') matchGen = pokemon.id >= 152 && pokemon.id <= 251
+      else if (selectedGen === '3') matchGen = pokemon.id >= 252 && pokemon.id <= 386
+      else if (selectedGen === '4') matchGen = pokemon.id >= 387 && pokemon.id <= 493
+
+      return matchNameOrId && matchType && matchAbility && matchGen
+    })
+
+    // FALLBACK API (Si rien n'est trouvé localement mais qu'on a un ID)
+    if (results.length === 0 && query.length > 0 && selectedType === 'all' && abilityQuery === '') {
+      try {
+        const id = Number(query)
+        if (!isNaN(id)) {
+          let fetchedPokemon = await fetchPokemonById(id)
+          if (fetchedPokemon) {
+            if (!pokedex.some(p => p.id === fetchedPokemon!.id)) pokedex.push(fetchedPokemon)
+            results = [fetchedPokemon]
+          }
+        }
+      } catch { /* Pokémon non trouvé */ }
     }
 
     filteredPokemons = results
     renderPokemonGrid(filteredPokemons)
   }
 
+  // ÉCOUTEURS D'ÉVÉNEMENTS
   searchInput?.addEventListener('input', applyFilters)
   typeSelect?.addEventListener('change', applyFilters)
+  abilityInput?.addEventListener('input', applyFilters)
+  genSelect?.addEventListener('change', applyFilters)
 
   setupGlobalKeyboardEvents()
 }
-
-
 /* ======================
   MODALE
 ====================== */
@@ -475,6 +530,8 @@ function setupPagination() {
     }, 200)
   }
 }
+
+
 
 function setupCardsClick() {
   document.querySelectorAll('.pokemon-card').forEach(card => {
