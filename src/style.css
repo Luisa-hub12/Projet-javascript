@@ -847,73 +847,10 @@ body {
   cursor: pointer;
 }
 
-/* Conteneur de l'équipe */
-#team-container {
-  margin: 40px auto;
-  padding: 20px;
-  max-width: 1000px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-}
 
-/* Titre */
-#team-container h3 {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 15px;
-  color: #333;
-}
 
-/* Résumé des types présents */
-.team-types {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
-}
 
-/* Grille de l'équipe */
-.team-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-}
 
-/* Carte Pokémon dans l'équipe */
-.team-card {
-  width: 150px;
-  background: #fff;
-  border-radius: 15px;
-  padding: 10px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.team-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-.team-card img {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  margin-bottom: 8px;
-}
-
-/* Types dans la carte */
-.team-card .types {
-  display: flex;
-  justify-content: center;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
 
 /* Bouton de suppression */
 .remove-btn {
@@ -932,17 +869,246 @@ body {
   transform: translateY(-2px);
 }
 
+
+#team-content {
+  margin: 40px auto;
+  padding: 30px;
+  max-width: 1200px;
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  animation: fadeIn 0.5s ease;
+}
+
+#team-content > p {
+  text-align: center;
+  font-size: 1.5rem;
+  color: #555;
+  font-weight: bold;
+  padding: 40px;
+  border: 4px dashed #ddd;
+  border-radius: 20px;
+}
+
+/* --- 10.3 Header : Types et Faiblesses --- */
+.team-types, .team-weaknesses {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-radius: 15px;
+  border-left: 5px solid #ffcb05; /* Touche jaune Pokémon */
+}
+
+.team-types strong, .team-weaknesses strong {
+  font-size: 1.1rem;
+  color: var(--text-main);
+  min-width: 100px;
+}
+
+/* --- 10.4 Grille des Pokémon --- */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+/* --- 10.5 Carte Pokémon de l'équipe --- */
+.team-card {
+  background: #c3ff5c; /* Reprise de ta couleur de carte */
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  border-bottom: 5px solid transparent;
+}
+
+.team-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  border-bottom-color: var(--pokedex-red);
+}
+
+.team-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
+  transition: transform 0.2s;
+}
+
+.team-card:hover img {
+  transform: scale(1.1);
+}
+
+.team-card > strong {
+  font-size: 1.5rem;
+  text-transform: capitalize;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* --- 10.6 Attaques (Moves) --- */
+.team-card .moves {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 20px;
+  flex-grow: 1; /* Pousse le bouton retirer vers le bas */
+}
+
+.team-card .moves > strong {
+  display: block;
+  font-size: 0.9rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.team-card .move {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #444;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  text-transform: capitalize;
+}
+
+.team-card .move:last-child {
+  border-bottom: none;
+}
+
+.team-card .move .type-badge {
+  transform: scale(0.8); /* Badge un peu plus petit pour les attaques */
+  margin-right: 10px;
+  padding: 4px 10px;
+}
+
+/* --- 10.7 Bouton Retirer --- */
+.team-card .remove-btn {
+  width: 100%;
+  background-color: #ff5252;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(255, 82, 82, 0.3);
+}
+
+.team-card .remove-btn:hover {
+  background-color: #e33e3e;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 82, 82, 0.4);
+}
+
 /* Responsive équipe */
 @media (max-width: 768px) {
-  .team-card { width: 120px; }
-  .team-card img { width: 80px; height: 80px; }
+  .team-management { flex-direction: column; }
+  .team-management input, .team-management select, .team-management button { width: 100%; }
+  .team-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
 }
 
 @media (max-width: 480px) {
-  .team-card { width: 100%; max-width: 200px; }
+  .team-grid { grid-template-columns: 1fr; }
+}
+#team-name,
+#saved-teams {
+  padding: 12px 20px;
+  border-radius: 30px;
+  border: 2px solid #ddd;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: bold;
+  outline: none;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  margin: 5px; /* Pour éviter qu'ils ne se collent s'ils sont côte à côte */
+  transition: border-color 0.2s;
 }
 
+#team-name:focus,
+#saved-teams:focus {
+  border-color: #3b4cca; /* Bleu Pokémon */
+}
 
+#save-team-btn,
+#delete-team-btn,
+#clear-team,
+#btn-show-team {
+  background-color: var(--pokedex-red);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  margin: 5px;
+  display: inline-block;
+}
+
+#save-team-btn:hover,
+#delete-team-btn:hover,
+#clear-team:hover,
+#btn-show-team:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+#save-team-btn:active,
+#delete-team-btn:active,
+#clear-team:active,
+#btn-show-team:active {
+  transform: translateY(0);
+}
+
+/* Couleurs spécifiques pour les actions destructrices */
+#delete-team-btn { 
+  background-color: #e74c3c; 
+}
+#delete-team-btn:hover { 
+  background-color: #c0392b; 
+}
+
+#clear-team { 
+  background-color: #95a5a6; 
+}
+#clear-team:hover { 
+  background-color: #7f8c8d; 
+}
+
+/* Rendre les contrôles responsives sur mobile */
+@media (max-width: 768px) {
+  #team-name,
+  #saved-teams,
+  #save-team-btn,
+  #delete-team-btn,
+  #clear-team,
+  #btn-show-team {
+    width: 100%;
+    margin: 8px 0;
+    display: block;
+  }
+}
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
