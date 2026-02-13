@@ -41,3 +41,5 @@ Les features
             En tant que joueur
         Je veux voir les faiblesses de mon équipe
         Afin de corriger ma composition
+
+        
