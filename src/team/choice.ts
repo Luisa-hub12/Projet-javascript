@@ -1,4 +1,4 @@
-import type { Pokemon } from "../pokemon_lists"; // Assure-toi que le chemin est bon
+import type { Pokemon } from "../pokemon_list"; // Assure-toi que le chemin est bon
 import {
   team,
   addToTeam,
