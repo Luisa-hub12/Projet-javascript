@@ -36,8 +36,8 @@ Les features
 
             En tant que joueur
 
-        Je veux sauvegarder et charger des équipe de pokemon dans mon localStorage
-        Afin de modifier une ancienne équipe sans perdre les autres
+        !Je veux sauvegarder et charger des équipe de pokemon dans mon localStorage -- en cours!
+        Afin de modifier une ancienne équipe sans perdre les autres15,00/20 -- en cours!
             En tant que joueur
         Je veux voir les faiblesses de mon équipe
         Afin de corriger ma composition
