@@ -1,17 +1,14 @@
-import { fetchPokemons } from './API/API'
-import { fetchPokemonById } from './API/API'
-import { handleAddToTeam } from './team/gestion'
-import { team } from './team/size'
-import { renderTeam } from './team/choice'
-import { loadTeam } from './team/size'
+// ======================
+// IMPORTS
+// ======================
+import { fetchPokemons, fetchPokemonById } from './API/API'
+import { handleAddToTeam, renderTeam } from './team/choice' 
+import { team, loadTeam } from './team/size'
 
-
-
-/* ======================
-  TYPES
-====================== */
-
-export interface Pokemon { // modal.ts e gidecek
+// ======================
+// TYPES
+// ======================
+export interface Pokemon {
   id: number
   name: string
   image: string
@@ -29,53 +26,47 @@ export interface Pokemon { // modal.ts e gidecek
   evolutionFrom?: number
   evolutionTo?: number[]
   moves: {
-  name: string
-  type: string
-  power: number | null
-}[]
+    name: string
+    type: string
+    power: number | null
+  }[]
 }
 
-// Le ? veut dire propriété optionnelle Autrement dit : cette propriété peut exister… ou pas
-
-/* ======================
-  VARIABLES GLOBALES
-====================== */
-
+// ======================
+// VARIABLES GLOBALES
+// ======================
 const app = document.querySelector<HTMLDivElement>('#app')!
 
-let pokedex: Pokemon[] = [] // tous les pokémons chargés
-let allPokemons: Pokemon[] = []
-let filteredPokemons: Pokemon[] = []
+let pokedex: Pokemon[] = []           // Tous les Pokémon chargés
+let allPokemons: Pokemon[] = []       // Pokémon de la page actuelle
+let filteredPokemons: Pokemon[] = []  // Pokémon filtrés selon recherche/type
 let currentPokemonIndex: number | null = null
-
 
 let currentPage = 1
 let hasMore = true
 
-
-/* ======================
-  INITIALISATION
-====================== */
-
-export async function initPokemonList() 
-{
-  loadTeam();
-
+// ======================
+// INITIALISATION
+// ======================
+export async function initPokemonList() {
+  loadTeam()          // Charge l'équipe depuis localStorage
   renderStaticStructure()
-  document.getElementById('btn-show-team')?.addEventListener('click', () => {
-    renderTeam();
-});
+  renderTeam()        // Affiche le panel et gère tous les boutons
+
+  const teamBtn = document.getElementById("btn-show-team")
+  const teamPanel = document.getElementById("team-panel")
+  const closeBtn = document.getElementById("btn-close-team")
+
+  teamBtn?.addEventListener("click", () => teamPanel?.classList.toggle("hidden"))
+  closeBtn?.addEventListener("click", () => teamPanel?.classList.add("hidden"))
 
   showLoading()
   const stopAnimation = animateProgress()
 
   allPokemons = await fetchPokemons(currentPage)
-
   allPokemons.forEach(pokemon => {
-  if (!pokedex.some(pokedex => pokedex.id === pokemon.id)) {
-    pokedex.push(pokemon)
-  }
-})
+    if (!pokedex.some(p => p.id === pokemon.id)) pokedex.push(pokemon)
+  })
   filteredPokemons = [...allPokemons]
 
   stopAnimation()
@@ -89,43 +80,34 @@ export async function initPokemonList()
   }, 200)
 }
 
+// ======================
+// ANIMATION LOADING
+// ======================
 function showLoading() {
-  const listContainer = document.getElementById('pokemon-list');
-  if (listContainer) {
-    listContainer.innerHTML = `
-      <div class="loading-container">
-        <div class="pokeball-spinner"></div>
-        <div class="loading-text">
-          ⚙️ Chargement du Pokédex... <span id="loading-percent">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="progress-fill"></div>
-        </div>
+  const listContainer = document.getElementById('pokemon-list')
+  if (!listContainer) return
+  listContainer.innerHTML = `
+    <div class="loading-container">
+      <div class="pokeball-spinner"></div>
+      <div class="loading-text">⚙️ Chargement du Pokédex... <span id="loading-percent">0%</span></div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-fill"></div>
       </div>
-    `
-  }
+    </div>
+  `
 }
 
-// Fonction utilitaire pour animer la barre
 function animateProgress() {
   const fill = document.getElementById('progress-fill')
   const percentText = document.getElementById('loading-percent')
-
   let width = 0
 
-  // On utilise un intervalle pour monter "faussement" le pourcentage
   const interval = setInterval(() => {
-    // Si on est en dessous de 90%, on monte un peu
-    // On ralentit plus on approche de 90% pour simuler un chargement complexe
-    if (width < 90) {
-      const increment = Math.random() * 5 + 1 // Augmente de 1 à 6% aléatoirement
-      width = Math.min(width + increment, 90) // On ne dépasse pas 90% tant que c'est pas fini
-    }
+    if (width < 90) width = Math.min(width + Math.random() * 5 + 1, 90)
     if (fill) fill.style.width = `${width}%`
     if (percentText) percentText.innerText = `${Math.floor(width)}%`
-  }, 100) // Mise à jour toutes les 100ms
+  }, 100)
 
-  // Cette fonction retourne une fonction de nettoyage qu'on appellera quand le fetch est fini
   return () => {
     clearInterval(interval)
     if (fill) fill.style.width = '100%'
@@ -133,48 +115,58 @@ function animateProgress() {
   }
 }
 
-/* ======================
-  RENDERING
-====================== */
-
-function renderStaticStructure() 
-{
+// ======================
+// RENDERING
+// ======================
+function renderStaticStructure() {
   app.innerHTML = `
     <div class="header-controls">
       <input id="search" type="text" placeholder="🔎 Chercher un Pokémon..." />
     </div>
 
     <div class="filter-group">
-        <select id="filter-type">
-          <option value="all">Tous</option> <option value="fire">Fire</option>
-          <option value="grass">Grass</option>
-          <option value="water">Water</option>
-          <option value="electric">Electric</option>
-          <option value="poison">Poison</option>
-          <option value="bug">Bug</option>
-          <option value="normal">Normal</option>
-          <option value="flying">Flying</option>
-          <option value="ground">Ground</option>
-          <option value="ice">Ice</option>
-        </select>
-      </div>
+      <select id="filter-type">
+        <option value="all">Tous</option>
+        <option value="fire">Fire</option>
+        <option value="grass">Grass</option>
+        <option value="water">Water</option>
+        <option value="electric">Electric</option>
+        <option value="poison">Poison</option>
+        <option value="bug">Bug</option>
+        <option value="normal">Normal</option>
+        <option value="flying">Flying</option>
+        <option value="ground">Ground</option>
+        <option value="ice">Ice</option>
+      </select>
     </div>
 
-    <button id="btn-show-team">🧢 Voir mon équipe</button>
-    <div id="team-container"></div>
+    <button id="btn-show-team">🧢 Mon équipe</button>
+
+    <div id="team-panel" class="team-panel hidden">
+      <div class="team-header">
+        <h2>📌 Mon équipe Pokémon</h2>
+        <button id="btn-close-team">✖</button>
+      </div>
+      <input id="team-name" placeholder="Nom de l'équipe..." />
+      <button id="save-team-btn">💾 Sauvegarder</button>
+      <select id="saved-teams"><option value="">Charger une équipe</option></select>
+      <button id="delete-team-btn">🗑️ Supprimer</button>
+      <button id="clear-team">❌ Vider</button>
+      <div id="team-content"></div>
+    </div>
 
     <div id="pokemon-list" class="pokemon-list"></div>
+
     <div class="pagination">
       <button id="prev-page" disabled>⬅ Précédent</button>
       <button id="next-page">Suivant ➡</button>
-
       <div class="page-jump">
         <span>Page</span>
         <input type="number" id="page-input" value="1" min="1" max="46" />
         <span>sur <strong id="total-pages">46</strong></span>
       </div>
-    
-      </div>
+    </div>
+
     <div id="modal-container"></div>
   `
 }
@@ -183,50 +175,33 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
   const container = document.getElementById('pokemon-list')
   if (!container) return
 
-  // --- GESTION DU CAS "VIDE" ---
   if (pokemons.length === 0) {
     container.innerHTML = `
       <div class="no-results">
         <div class="no-results-icon">🍃</div>
         <h3>Oups ! Aucun Pokémon trouvé.</h3>
         <p>Il semble que ce Pokémon se cache très bien dans les hautes herbes...</p>
-        <button id="btn-reset" class="btn-reset">
-          🔄 Réinitialiser les filtres
-        </button>
+        <button id="btn-reset" class="btn-reset">🔄 Réinitialiser les filtres</button>
       </div>`
-
-    // On attache l'événement au bouton "Réinitialiser" juste après l'avoir créé
     setTimeout(() => {
       document.getElementById('btn-reset')?.addEventListener('click', () => {
         const searchInput = document.querySelector<HTMLInputElement>('#search')
         const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
-
-        // Reset des inputs
-        if(searchInput) searchInput.value = ''
-        if(typeSelect) typeSelect.value = 'all'
-
-        // Reset des données
+        if (searchInput) searchInput.value = ''
+        if (typeSelect) typeSelect.value = 'all'
         filteredPokemons = [...pokedex]
         renderPokemonGrid(filteredPokemons)
       })
     }, 0)
-
     return
   }
-  // -----------------------------
 
-
-  // Affiche les cartes de HTML sur l'écran 
   container.innerHTML = pokemons.map(pokemon => `
     <div class="pokemon-card" data-id="${pokemon.id}">
       <img src="${pokemon.image}" loading="lazy" />
       <h2>${pokemon.name}</h2>
       <div class="types-mini" style="display:flex; gap:5px; justify-content:center;">
-        ${pokemon.type
-          .map(t => `<span class="type-dot type-${t}"
-            style="width:10px; height:10px; border-radius:50%; background:var(--bg-type-${t}, grey); display:inline-block;">
-            </span>`)
-          .join('')}
+        ${pokemon.type.map(t => `<span class="type-dot type-${t}" style="width:10px; height:10px; border-radius:50%; background:var(--bg-type-${t}, grey); display:inline-block;"></span>`).join('')}
       </div>
     </div>
   `).join('')
@@ -234,71 +209,40 @@ function renderPokemonGrid(pokemons: Pokemon[]) {
   setupCardsClick()
 }
 
-/* ======================
-  RECHERCHE (IDENTIQUE À L’ORIGINE)
-====================== */
-
-
-/* « Cette fonction centralise les écouteurs d’événements et 
-combine une recherche textuelle et un filtre par type, avec un fallback API
- si le Pokémon recherché n’est pas encore chargé. » */
- 
+// ======================
+// RECHERCHE / FILTRAGE
+// ======================
 function setupGlobalListeners() {
   const searchInput = document.querySelector<HTMLInputElement>('#search')
   const typeSelect = document.querySelector<HTMLSelectElement>('#filter-type')
 
-  // Cette fonction combine les deux filtres
   const applyFilters = async () => {
-    // 1. On récupère la valeur du texte (minuscule)
     const query = searchInput?.value.toLowerCase() || ''
-
-    // 2. On récupère la valeur du select
     const selectedType = typeSelect?.value || 'all'
 
-      let results = pokedex.filter(pokemon => {
-    const matchName = pokemon.name.toLowerCase().includes(query)
-    const matchType =
-      selectedType === 'all' || pokemon.type.includes(selectedType)
+    let results = pokedex.filter(p => (p.name.toLowerCase().includes(query)) && (selectedType === 'all' || p.type.includes(selectedType)))
 
-    return matchName && matchType
-  })
-
-
-
-if (results.length === 0 && query.length > 0 && selectedType === 'all') {
-  try {
-    const id = Number(query)
-    let fetchedPokemon: Pokemon | null = null
-
-    if (!isNaN(id)) {
-      fetchedPokemon = await fetchPokemonById(id)
-    }
-
-    if (fetchedPokemon) {
-      // On évite les doublons
-      if (!pokedex.some(p => p.id === fetchedPokemon!.id)) {
-        pokedex.push(fetchedPokemon)
+    if (results.length === 0 && query.length > 0 && selectedType === 'all') {
+      const id = Number(query)
+      if (!isNaN(id)) {
+        try {
+          const fetchedPokemon = await fetchPokemonById(id)
+          if (fetchedPokemon && !pokedex.some(p => p.id === fetchedPokemon.id)) pokedex.push(fetchedPokemon)
+          if (fetchedPokemon) results = [fetchedPokemon]
+        } catch {}
       }
-      results = [fetchedPokemon]
     }
-  } catch {
-    // Pokémon inexistant → results reste vide
-  }
-}
 
-  // Mise à jour de l’affichage
-  filteredPokemons = results
-
-    // 4. On redessine la grille avec le résultat combiné
+    filteredPokemons = results
     renderPokemonGrid(filteredPokemons)
   }
 
-  // On attache la MÊME fonction aux deux événements
   searchInput?.addEventListener('input', applyFilters)
   typeSelect?.addEventListener('change', applyFilters)
 
   setupGlobalKeyboardEvents()
 }
+
 
 /* ======================
   MODALE
@@ -313,10 +257,7 @@ async function openModal(index: number) {
   let previousEvolution: Pokemon | null = null
 
   if (pokemon.evolutionFrom) {
-    previousEvolution =
-      pokedex.find(p => p.id === pokemon.evolutionFrom) ?? null
-
-    // fallback : on va le chercher si absent
+    previousEvolution = pokedex.find(p => p.id === pokemon.evolutionFrom) ?? null
     if (!previousEvolution) {
       try {
         previousEvolution = await fetchPokemonById(pokemon.evolutionFrom)
@@ -327,15 +268,8 @@ async function openModal(index: number) {
     }
   }
 
-
-
-  // 2. Récupération sécurisée des évolutions suivantes
-  // Le changement ici : (p): p is Pokemon => !!p permet de garantir à TypeScript que p n'est pas null
-  let nextEvolutions = pokedex.filter(
-    p => p.evolutionFrom === pokemon.id
-  )
-
-
+  // Récupération des évolutions suivantes
+  let nextEvolutions = pokedex.filter(p => p.evolutionFrom === pokemon.id)
 
   const modalContainer = document.querySelector('#modal-container')!;
 
@@ -400,25 +334,20 @@ async function openModal(index: number) {
 
   if (btn) {
     const alreadyInTeam = team.pokemons.some(p => p.id === pokemon.id)
-
-    btn.disabled = alreadyInTeam
-  if (alreadyInTeam) {
-    btn.textContent = '✔ Déjà dans l’équipe'
+    
+    if (alreadyInTeam) {
+      btn.disabled = true;
+      btn.textContent = '✔ Déjà dans l’équipe'
+    } else {
+      btn.addEventListener('click', () => {
+        handleAddToTeam(pokemon) // Vient maintenant de choice.ts
+        btn.disabled = true
+        btn.textContent = '✔ Ajouté à l’équipe'
+      })
+    }
   }
 
-  btn.addEventListener('click', () => {
-    handleAddToTeam(pokemon)
-    btn.disabled = true
-    btn.textContent = '✔ Ajouté à l’équipe'
-  })
-}
-
-
-
-
-
-  /* --- RESTE DE LA LOGIQUE (CLICK, FERMETURE...) --- */
-  
+  /* --- FERMETURE ET NAVIGATION --- */
   const closeModal = () => {
     modalContainer.innerHTML = ''
     currentPokemonIndex = null
@@ -428,7 +357,6 @@ async function openModal(index: number) {
   document.querySelector('#overlay-bg')?.addEventListener('click', event => {
     if (event.target === document.querySelector('#overlay-bg')) closeModal()
   })
-
   // Gestion du clic sur les cartes d'évolution
   document.querySelectorAll('.evolution-card').forEach(card => {
     card.addEventListener('click', async () => {

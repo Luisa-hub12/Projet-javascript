@@ -814,6 +814,38 @@ body {
 /* =========================================
    10. ÉQUIPE POKÉMON (TEAM CREATOR)
 ========================================= */
+.team-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 350px;
+  height: 100%;
+  background: white;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.2);
+  padding: 20px;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+  z-index: 999;
+}
+
+/* Caché */
+.team-panel.hidden {
+  transform: translateX(100%);
+}
+
+/* Header */
+.team-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#btn-close-team {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
 
 /* Conteneur de l'équipe */
 #team-container {
